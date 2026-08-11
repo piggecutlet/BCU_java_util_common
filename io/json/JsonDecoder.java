@@ -24,14 +24,25 @@ import java.util.Set;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * BCUのJSON注釈規約に従い、Gson要素を新規または既存オブジェクトへ反射注入する。
+ * フィールド順は{@link FieldOrder}に従い、注入後フックは各クラスにつき1個だけ許可される。
+ * 現在のトップレベル復号コンテキストを静的に保持するため、同時並行の復号は想定されていない。
+ */
 public class JsonDecoder {
 
+	/**
+	 * 組み込み型など、クラス単位の復号処理を登録する契約。
+	 */
 	public interface Decoder {
 
 		Object decode(JsonElement elem) throws Exception;
 
 	}
 
+	/**
+	 * 宣言クラスのフィールドと読取メソッドを注入した後に一度呼び出すフック。
+	 */
 	@Documented
 	@Retention(RUNTIME)
 	@Target(METHOD)
@@ -81,7 +92,7 @@ public class JsonDecoder {
 			return decodeSet(elem, cls, par);
 		if (Enum.class.isAssignableFrom(cls))
 			return decodeEnum(elem, cls);
-		// alias
+		// 別名型を介した変換
 		if (par != null && par.curjfld.alias().length > par.index) {
 			Class<?> alias = par.curjfld.alias()[par.index];
 			if (alias != cls && alias != void.class) {
@@ -95,17 +106,17 @@ public class JsonDecoder {
 				throw new JsonException(Type.TYPE_MISMATCH, null, "no JCGetter present: " + alias + "->" + cls);
 			}
 		}
-		// fill existing object
+		// 既存オブジェクトへの注入
 		if (par != null && par.curjfld.gen() == GenType.FILL) {
 			Object val = par.curfld.get(par.obj);
 			if (cls.getAnnotation(JsonClass.class) != null)
 				return inject(par, elem.getAsJsonObject(), cls, val);
 			return val;
 		}
-		// generator
+		// 保持側による生成
 		if (par != null && par.curjfld.gen() == GenType.GEN) {
 			Class<?> ccls = par.obj.getClass();
-			// default generator
+			// 1引数コンストラクターによる既定生成
 			if (par.curjfld.generator().isEmpty()) {
 				Constructor<?> cst = null;
 				for (Constructor<?> ci : cls.getDeclaredConstructors())
@@ -116,7 +127,7 @@ public class JsonDecoder {
 				Object val = cst.newInstance(par.obj);
 				return inject(par, elem.getAsJsonObject(), cls, val);
 			}
-			// functional generator
+			// 指定メソッドによる生成
 			Method m = ccls.getMethod(par.curjfld.generator(), Class.class, JsonElement.class);
 			return m.invoke(par.obj, cls, elem);
 		}

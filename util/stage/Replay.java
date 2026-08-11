@@ -32,6 +32,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 再現に必要なステージ識別子、編成、乱数種、操作列を保存するリプレイ定義。
+ * {@code action}は操作値と継続フレーム数の対であり、戦闘エンティティの現在状態そのものは保存しない。
+ */
 @JsonClass
 @JsonClass.JCGeneric(ResourceLocation.class)
 public class Replay extends Data {
@@ -123,7 +127,7 @@ public class Replay extends Data {
 	public boolean buttonDelay = false;
 	public int[] action;
 	public HashMap<Integer, double[]> sniperCoords;
-	public boolean marked;// FIXME mark save
+	public boolean marked;// FIXME マークを保存
 
 	@JCConstructor
 	@Deprecated
@@ -145,6 +149,9 @@ public class Replay extends Data {
 		return new Replay(lu.copy(), st, star, conf.clone(), seed, buttonDelay);
 	}
 
+	/**
+	 * 操作列の奇数要素に格納された継続フレーム数の合計を遅延計算する。
+	 */
 	public int getLen() {
 		if (len > 0)
 			return len;

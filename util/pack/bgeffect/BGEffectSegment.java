@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * 背景効果 JSON の一セグメントを解析し、生成数・座標・速度・寿命などを BattleRange として保持する。
+ * model と files は排他的で、files の配列添字は BGFile.ordinal() に対応する。
+ */
 public class BGEffectSegment {
     public enum BGFile {
         IMAGE,
@@ -28,45 +32,45 @@ public class BGEffectSegment {
     public final String json;
 
     /**
-     * Animation file
+     * 背景本体の画像・imgcut と組み合わせるアニメーションモデル番号。
      */
     public final int[] model;
 
     /**
-     * Animation file, but with specified file name
+     * ファイル名を直接指定する場合の IMAGE、IMGCUT、MODEL、ANIME。
      */
     public final String[] files;
 
     /**
-     * Number of components which have to be generated
+     * 生成する要素数。
      */
     public final BattleRange<Integer> count;
     /**
-     * Position where component will be drawn. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 描画位置。最大値がある場合は範囲内から選択される。
      */
     public final BattleRange<Integer> x;
     public final BattleRange<Integer> y;
     /**
-     * The Z-Order where the component will be drawn.
+     * 要素を描画する前後関係。
      */
     public final BattleRange<Integer> zOrder;
     /**
-     * The Size of the component to draw. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 描画倍率。最大値がある場合は範囲内から選択される。
      */
     public BattleRange<Float> scale;
     /**
-     * The start Size of the component along x-axis. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * X 軸方向の初期倍率。最大値がある場合は範囲内から選択される。
      */
     public BattleRange<Float> startScaleX;
 
     public BattleRange<Float> scaleX;
     public BattleRange<Float> scaleY;
     /**
-     * The Angle of the component to draw. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 描画角度。JSON の度数をラジアンへ変換して保持する。
      */
     public BattleRange<Float> angle;
     /**
-     * Frame this component will start to appear.
+     * 要素の開始フレーム。
      */
     public final BattleRange<Integer> startFrame;
 
@@ -76,62 +80,61 @@ public class BGEffectSegment {
     public final BattleRange<Integer> startWait;
 
     /**
-     * Draw same segment over and over again until reaching battle boundary
-     * Count is assumed to be 1
+     * 同じ要素を指定範囲へ等間隔に反復描画する設定。count は 1 を前提とする。
      */
     public final BGEffectSpacer spacer;
 
     /**
-     * The speed this component will rotate. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 回転速度。JSON の度数をラジアンへ変換して保持する。
      */
     public BattleRange<Float> angleVelocity;
     /**
-     * Component's velocity.
+     * 速度と移動角で表す場合の速度。
      */
     public final BattleRange<Float> velocity;
     /**
-     * The speed this component will move. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * X・Y 軸ごとに表す場合の速度。
      */
     public final BattleRange<Float> velocityX;
     public final BattleRange<Float> velocityY;
     /**
-     * If the component goes beyond these values' direction, it will be destroyed.
+     * 要素が各方向へ越えた場合に再生成する境界。
      */
     public BattleRange<Integer> destroyTop, destroyBottom, destroyLeft, destroyRight;
     /**
-     * The size this component when made. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 生成時の描画倍率。
      */
     public final BattleRange<Float> startScale;
     /**
-     * Initial X position. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 初回生成時の X 座標。
      */
     public final BattleRange<Integer> startX;
     /**
-     * Initial Y position. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 初回生成時の Y 座標。
      */
     public final BattleRange<Integer> startY;
     /**
-     * Initial X velocity. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 初回生成時の X 速度。
      */
     public final BattleRange<Float> startVelocityX;
     /**
-     * Initial Y velocity. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 初回生成時の Y 速度。
      */
     public final BattleRange<Float> startVelocityY;
     /**
-     * Initial velocity. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 初回生成時の速度。
      */
     public final BattleRange<Float> startVelocity;
     /**
-     * The component will be destroyed if it stays on the field longer than this time.
+     * 要素を再生成するまでの寿命。
      */
     public final BattleRange<Integer> lifeTime;
     /**
-     * ???
+     * 速度の進行方向として使用する角度。詳細な元データ上の意味は未確認。
      */
     public final BattleRange<Float> moveAngle;
     /**
-     * Component's opacity. If there is a maximum value, the value will be a random number between the minimum and maximum value.
+     * 要素の不透明度。
      */
     public final BattleRange<Integer> opacity;
 
@@ -434,7 +437,7 @@ public class BGEffectSegment {
             spacer = null;
         }
 
-        //Check unknown tags
+        // 未対応タグを検出する
         for(String tag : elem.getAsJsonObject().keySet()) {
             if(!tags.contains(tag)) {
                 System.out.println("W/BGEffectSegment | "+json+" / Unknown tag found -> " + tag);

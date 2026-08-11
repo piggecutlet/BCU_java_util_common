@@ -22,12 +22,23 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+/**
+ * 配布資産パックを複数パックコンテナへ統合し、起動時に仮想ファイルツリーへマージする。
+ * コンテナは平文JSONヘッダーの後ろへBCUパックを連結した形式で、対応コア版を超えるパックは公開しない。
+ * カスタム資産は配布資産の後にマージされるため、同じ仮想パスを上書きできる。
+ */
 @StaticPermitted
 public class AssetLoader {
 
+	/**
+	 * 連結された各BCUパックの記述子とバイト長を保持するコンテナヘッダー。
+	 */
 	@JsonClass
 	public static class AssetHeader {
 
+		/**
+		 * パック識別情報と、コンテナ内で次のパック位置を算出するための格納サイズ。
+		 */
 		@JsonClass
 		public static class AssetEntry {
 

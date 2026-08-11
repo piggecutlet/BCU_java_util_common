@@ -8,6 +8,10 @@ import common.util.unit.Form;
 
 import java.util.Arrays;
 
+/**
+ * 2行5枠の編成について、戦闘中の価格・再生産時間・交互発動本能玉を管理する。
+ * すべての2次元配列は第1添字が行、第2添字が枠で、対応する {@link LineUp#fs} と同じ位置を表す。
+ */
 public class ELineUp extends BattleObj {
 
 	public final int[][] price, cool, maxC, tick, cdDownOrb, priceDownOrb;
@@ -63,7 +67,7 @@ public class ELineUp extends BattleObj {
 	}
 
 	/**
-	 * reset cooldown of a unit
+	 * 出撃した枠の再生産時間を設定する。
 	 */
 	protected void get(int i, int j) {
 		cool[i][j] = maxC[i][j];
@@ -101,7 +105,7 @@ public class ELineUp extends BattleObj {
 	}
 
 	/**
-	 * count down the cooldown
+	 * 全枠の再生産時間と遅延表示時間を1フレーム進める。
 	 */
 	protected void update() {
 		for (int i = 0; i < 2; i++)

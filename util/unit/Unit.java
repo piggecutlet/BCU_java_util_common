@@ -28,11 +28,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * 同一キャラの全形態、レアリティ、レベル上限、成長曲線を束ねる定義。
+ * パック内識別子はキャラ単位で、形態は配列添字と{@link Form#fid}で区別する。
+ */
 @IndexCont(PackData.class)
 @JCGeneric(Identifier.class)
 @JsonClass
 public class Unit extends Data implements Comparable<Unit>, Indexable<PackData, Unit> {
 
+	/**
+	 * 進化素材、進化XP、解放レベルなど購入・進化画面向けの付帯定義。
+	 */
 	public static class UnitInfo {
 
 		public int[][] evo;
@@ -183,6 +190,9 @@ public class Unit extends Data implements Comparable<Unit>, Indexable<PackData, 
 		return id;
 	}
 
+	/**
+	 * 設定上の希望レベルをユニット上限へ収め、利用可能な本能を最大値にした初期値を生成する。
+	 */
 	public Level getPrefLvs() {
 		int maxTalent = 0;
 		PCoin pc = null;

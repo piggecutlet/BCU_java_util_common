@@ -7,6 +7,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+/**
+ * BCU独自バイナリ形式を構築する出力契約。
+ * 通常形式は配列長を1バイト、アニメーション形式は4バイトで記録し、
+ * {@link #flush(OutputStream)}では本体長の4バイトヘッダーを先頭へ付加する。
+ */
 public interface OutStream {
 
 	static OutStream getIns() {
@@ -60,6 +65,9 @@ public interface OutStream {
 
 }
 
+/**
+ * 通常の1バイト長接頭辞を用いる、メモリ上のBCU出力ストリーム。
+ */
 class OutStreamDef extends DataIO implements OutStream {
 
 	private byte[] bs;
@@ -102,7 +110,7 @@ class OutStreamDef extends DataIO implements OutStream {
 	@Override
 	public void flush(OutputStream fos) throws IOException {
 		terminate();
-		fos.write(getSignature(bs.length));// signature
+		fos.write(getSignature(bs.length));// 本体長ヘッダー
 		fos.write(getBytes());
 	}
 
@@ -259,6 +267,9 @@ class OutStreamDef extends DataIO implements OutStream {
 
 }
 
+/**
+ * 配列と文字列の長さを4バイトで記録する、アニメーション互換の出力ストリーム。
+ */
 class OutStreamAnim extends DataIO implements OutStream {
 
 	private byte[] bs;
@@ -291,7 +302,7 @@ class OutStreamAnim extends DataIO implements OutStream {
 	@Override
 	public void flush(OutputStream fos) throws IOException {
 		terminate();
-		fos.write(getSignature(bs.length));// signature
+		fos.write(getSignature(bs.length));// 本体長ヘッダー
 		fos.write(getBytes());
 	}
 

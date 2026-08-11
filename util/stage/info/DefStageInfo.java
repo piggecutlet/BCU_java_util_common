@@ -10,6 +10,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+/**
+ * 公式ステージの消費統率力、経験値、ドロップ、時間報酬、EX接続を保持する定義。
+ * ドロップ配列の確率表現は抽選方式{@code rand}により異なり、表示用確率は{@link #analyzeRewardChance()}で解釈する。
+ */
 public class DefStageInfo implements StageInfo {
     private static final DecimalFormat df;
 
@@ -30,7 +34,7 @@ public class DefStageInfo implements StageInfo {
     public int diff = -1, exChance = -1, exMapID = -1, exStageIDMin = -1, exStageIDMax = -1;
     public boolean exConnection = false;
     public int maxMaterial = -1;
-    public Map<Integer, Map.Entry<Integer, Integer>> challengeRewards = new HashMap<>(); // <Clear, <ID, Amount>>
+    public Map<Integer, Map.Entry<Integer, Integer>> challengeRewards = new HashMap<>(); // クリア回数 -> 報酬IDと個数
 
     public DefStageInfo(StageMap.StageMapInfo info, Stage s, int[] data) {
         map = info;
@@ -151,6 +155,10 @@ public class DefStageInfo implements StageInfo {
         return time;
     }
 
+    /**
+     * 抽選方式を考慮して各ドロップの表示用パーセント値を算出する。
+     * 確率を確定できない方式では空リスト、報酬なしでは{@code null}を返す。
+     */
     public List<String> analyzeRewardChance() {
         ArrayList<String> res = new ArrayList<>();
 

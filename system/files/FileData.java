@@ -12,6 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+/**
+ * 仮想ファイルの内容を、バイト列・画像・ストリームとして提供するデータ源。
+ * 呼び出し側がストリームを閉じるため、各呼び出しでは独立して読み取れるストリームを返す必要がある。
+ */
 public interface FileData {
 
 	default byte[] getBytes() {
@@ -29,6 +33,9 @@ public interface FileData {
 
 	FakeImage getImg();
 
+	/**
+	 * 先頭から読み取れる新しいストリームを返す。
+	 */
 	InputStream getStream();
 
 	default Queue<String> readLine() {

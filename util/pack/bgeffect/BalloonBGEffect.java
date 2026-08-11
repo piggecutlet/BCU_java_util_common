@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 背景の部品20・21を大小の風船として使い、前景を蛇行しながら上昇する効果。
+ * 対応部品を持たない背景では既定背景81の部品を共有する。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class BalloonBGEffect extends BackgroundEffect {
     private FakeImage balloon;

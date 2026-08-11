@@ -16,6 +16,11 @@ import common.util.unit.Unit;
 
 import java.util.TreeSet;
 
+/**
+ * 制限やコンボが対象とするキャラ集合の定義。
+ * {@code type == 0}は集合内だけを許可し、{@code type == 1}は全キャラを許可し、
+ * {@code type == 2}は集合内だけを拒否する。
+ */
 @IndexCont(PackData.class)
 @JsonClass(noTag = NoTag.LOAD)
 @JCGeneric(Identifier.class)

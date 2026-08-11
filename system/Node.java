@@ -8,6 +8,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * 前後の項目へ移動する画面で使用する、双方向リンク付きの値ノード。
+ * 連続区間を一時的に切り離し、同じ位置へ戻す操作も保持する。
+ *
+ * @param <T> ノードが保持する値の型
+ */
 public class Node<T> {
 
 	public static List<Form> deRep(List<Form> list) {

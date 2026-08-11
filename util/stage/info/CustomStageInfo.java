@@ -12,6 +12,10 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+/**
+ * ユーザーパックのステージに後続EXステージ候補と抽選率を付与する定義。
+ * 候補と確率は同じ添字で対応し、{@link #checkChances()}で合計確率を100以下へ正規化する。
+ */
 @JsonClass
 public class CustomStageInfo implements StageInfo {
     private static final DecimalFormat df;
@@ -143,7 +147,7 @@ public class CustomStageInfo implements StageInfo {
     }
 
     /**
-     * Called to detach the followup from the stage and remove it from the list storing it
+     * 後続EXステージとの関連を解除し、保持中の候補と確率を破棄する。
      */
     public void destroy() {
         stages.clear();

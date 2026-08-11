@@ -6,6 +6,10 @@ import common.system.VImg;
 import common.system.fake.FakeImage;
 import common.util.anim.*;
 
+/**
+ * にゃんこ城の本体・攻撃・拡張アニメーション資源を読み込み、城種別ごとの再生定義を提供する。
+ * 一部の城種別には攻撃または拡張アニメーションが存在せず、names() は利用可能な種別だけを返す。
+ */
 public class NyCastle extends AnimI<NyCastle, NyCastle.NyType> {
 
 	public enum NyType implements AnimI.AnimType<NyCastle, NyType> {

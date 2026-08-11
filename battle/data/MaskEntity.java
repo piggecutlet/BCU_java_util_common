@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * 味方・敵の静的戦闘データを、実体生成と攻撃モデルから共通に参照するための契約。
+ * 通常攻撃配列の添字と特殊攻撃の取得規約は実装側で一致させる必要がある。
+ */
 public interface MaskEntity extends BattleStatic {
 
 	int allAtk();
@@ -24,9 +28,6 @@ public interface MaskEntity extends BattleStatic {
 
 	Proc getAllProc();
 
-	/**
-	 * get the attack animation length
-	 */
 	default int getAnimLen() {
 		return getPack().anim.getAtkLen();
 	}
@@ -41,7 +42,7 @@ public interface MaskEntity extends BattleStatic {
 
 	Identifier<Soul> getDeathAnim();
 
-	List<Trait> getTraits(); // todo: deprecate this function, replace with Trait.getAllTraits
+	List<Trait> getTraits(); // TODO: 廃止して Trait.getAllTraits に置き換える
 
     List<Trait> getTraitsRaw();
 
@@ -49,14 +50,8 @@ public interface MaskEntity extends BattleStatic {
 
 	int getHp();
 
-	/**
-	 * get the attack period
-	 */
 	int getItv();
 
-	/**
-	 * get the Enemy/Form this data represents
-	 */
 	Animable<AnimU<?>, UType> getPack();
 
 	int getPost();
@@ -99,9 +94,6 @@ public interface MaskEntity extends BattleStatic {
 
 	int getWill();
 
-	/**
-	 * get waiting time
-	 */
 	int getTBA();
 	int getRealTBA();
 

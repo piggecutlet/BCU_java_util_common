@@ -4,6 +4,10 @@ import common.system.P;
 import common.system.fake.FakeGraphics;
 import common.util.BattleObj;
 
+/**
+ * アニメーション資源から生成される描画・再生インスタンスの基底。
+ * {@link MaModel} の各行を可変な {@link EPart} に展開し、モデル順の配列とZ値順の描画配列を分けて保持する。
+ */
 public abstract class EAnimI extends BattleObj {
 
 	private static void sort(EPart[] arr, int low, int high) {
@@ -69,6 +73,7 @@ public abstract class EAnimI extends BattleObj {
 
 	@Override
 	protected void performDeepCopy() {
+		// 共有モデルから部品を作り直し、コピー元の可変な親子関係を共有しない。
 		((EAnimI) copy).organize();
 	}
 

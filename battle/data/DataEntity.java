@@ -11,6 +11,10 @@ import common.util.unit.Trait;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 味方・敵に共通する耐久、移動、射程、属性などの静的戦闘値を保持する基底データ。
+ * 旧形式の属性ビット列とシールド値は読み込み互換のためだけに残されている。
+ */
 @JsonClass(noTag = NoTag.LOAD)
 public abstract class DataEntity extends Data implements MaskEntity {
 
@@ -23,8 +27,8 @@ public abstract class DataEntity extends Data implements MaskEntity {
 	public Identifier<Soul> death;
 	@JsonField(generic = Trait.class, alias = Identifier.class)
 	public ArrayList<Trait> traits = new ArrayList<>();
-	//Despite traits being restructured, type was left here to guarantee that traits can be transferred from the old trait structure to the new trait structure
-	//type and shield should be safely removable in 0-5-1-1
+	// 属性構造移行前のデータを新しい属性一覧へ移すため、type を残している
+	// type と shield は 0-5-1-1 で安全に削除できる見込み
 
 	@Override
 	public int getAbi() {

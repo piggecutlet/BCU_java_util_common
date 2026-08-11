@@ -18,6 +18,11 @@ import common.util.unit.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * パックID、要素型、パック内数値IDの組でデータを遅延解決する参照。
+ * 所有コンテナは{@link IndexContainer.IndexCont}と{@link IndexContainer.ContGetter}から反射的に特定する。
+ * 旧整数IDでは1000単位をパック番号とし、敵系は下3桁の500境界で実型を補正する。
+ */
 @JsonClass(noTag = JsonClass.NoTag.LOAD)
 public class Identifier<T extends IndexContainer.Indexable<?, T>> implements Comparable<Identifier<?>>, Cloneable {
 
@@ -77,8 +82,7 @@ public class Identifier<T extends IndexContainer.Indexable<?, T>> implements Com
 	}
 
 	/**
-	 * cls must be a class implementing Indexable. interfaces or other classes will
-	 * go through fixer
+	 * {@code cls}が{@link IndexContainer.Indexable}実装でない場合、旧整数IDから実型を補正する。
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends IndexContainer.Indexable<?, T>> Identifier<T> parseInt(int v, Class<? extends T> cls) {

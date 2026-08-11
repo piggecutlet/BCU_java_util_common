@@ -18,20 +18,29 @@ import common.util.stage.Music;
 import java.lang.annotation.*;
 import java.lang.reflect.Field;
 
+/**
+ * 戦闘・表示・保存形式で共有される定数、添字対応、および Proc スキーマを集約する。
+ * この型の数値にはゲームデータ由来の値と実装上の識別子が混在するため、意味が確認できない値は定数名以上に解釈しない。
+ */
 @SuppressWarnings("unused")
 @StaticPermitted
 public class Data {
 
+	/**
+	 * エンティティが持つ能力 Proc 一式。
+	 * {@link Order} の値が旧 int[][] 形式の第1添字と JSON の列挙順を定め、各 ProcItem 内の Order が第2添字を定める。
+	 * Order のない本能玉専用フィールドは順序付きフィールドの後ろに並ぶため、PROC_TOT 以降を通常 Proc の添字として扱ってはならない。
+	 */
 	@JsonClass(read = JsonClass.RType.MANUAL, write = JsonClass.WType.CLASS, generator = "genProc", serializer = "serProc")
 	public static class Proc implements BattleStatic {
 
 		/**
-		 * Used to obtain whether controlled immunity will have effect or not
+		 * 符号で制御される耐性値が指定側に作用するかを判定する。
 		 *
-		 * @param val    The effect of the proc
-		 * @param side   The side used by the smartImu (0 = either or; 1 = )
-		 * @param invert Inverts the >,< signs depending on the proc
-		 * @return idk
+		 * @param val    判定対象の Proc 値
+		 * @param side   0 なら符号を問わず、それ以外は判定する側
+		 * @param invert Proc に応じて符号条件を反転するか
+		 * @return side が 0、または val と side の積が要求された符号条件を満たす場合 true
 		 */
 		public static boolean checkSmartImu(int val, int side, boolean invert) { // strength = 50, imu = 0,
 			if (side == 0)
@@ -121,6 +130,10 @@ public class Data {
 			public TYPE type = new TYPE();
 		}
 
+		/**
+		 * 一つの int に複数のフラグや小整数を詰める Proc 補助型。
+		 * FieldOrder 順の位置をビット位置として扱い、BitCount 付きフィールドは指定幅を占有する。
+		 */
 		public static abstract class IntType implements Cloneable, BattleStatic {
 
 			@Documented
@@ -238,6 +251,10 @@ public class Data {
 			public int mult;
 		}
 
+		/**
+		 * 一種類の Proc の順序付きパラメータ群。
+		 * 旧整数配列用の get・load・set の添字は FieldOrder 順であり、Identifier と IntType はコピー時に複製される。
+		 */
 		public static abstract class ProcItem implements Cloneable, BattleStatic {
 			public ProcItem clear() {
 				try {
@@ -354,7 +371,7 @@ public class Data {
 			}
 
 			/**
-			 * should not modify IntType and Identifier
+			 * IntType と Identifier はこのメソッドでは変更しない。
 			 */
 			@Deprecated
 			public void set(int i, int v) {
@@ -957,7 +974,7 @@ public class Data {
 		@Order(65)
 		public final IMUAD IMUDELAY = new IMUAD();
 
-		// Talent orbs, shouldn't be given @Order unless allowed as editable fields
+		// 本能玉専用。編集可能な通常 Proc として許可するまでは @Order を付けない
 		public final MINIVOLC MINIDEATHSURGE = new MINIVOLC(); // TODO: implement this as a normal ability?
 		public final MULT MONEYBACK = new MULT();
 		public final MULT CANONCHARGE = new MULT();
@@ -1107,7 +1124,7 @@ public class Data {
 
 	public static final byte RARITY_TOT = 6;
 
-	// trait bit filter
+	// 特性ビットフィルター。TB_* はビット値であり TRAIT_* の配列添字とは別体系
 	public static final int TB_RED = 1;
 	public static final int TB_FLOAT = 2;
 	public static final int TB_BLACK = 4;
@@ -1121,7 +1138,7 @@ public class Data {
 	public static final int TB_WITCH = 1024;
 	public static final int TB_INFH = 2048;
 	public static final int TB_DEMON = 4096;
-	// talent trait bit
+	// 本能データ用の特性ビット。通常の TB_* と後半の配置が異なる
 	public static final int TB_RED_T = 1;
 	public static final int TB_FLOAT_T = 2;
 	public static final int TB_BLACK_T = 4;
@@ -1135,7 +1152,7 @@ public class Data {
 	public static final int TB_WITCH_T = 1024;
 	public static final int TB_DEMON_T = 2048;
 
-	// trait index
+	// 特性配列の添字
 	public static final byte TRAIT_RED = 0;
 	public static final byte TRAIT_FLOAT = 1;
 	public static final byte TRAIT_BLACK = 2;
@@ -1164,10 +1181,10 @@ public class Data {
 	public static final byte T_ALIEN = 5;
 	public static final byte T_ZOMBIE = 6;
 
-	// default tech value
+	// 技術レベル配列 MLV の既定値
 	public static final int[] MLV = new int[] { 30, 30, 30, 30, 30, 30, 30, 10, 30 };
 
-	// tech index
+	// 技術レベル配列 MLV の添字
 	public static final byte LV_RES = 0;
 	public static final byte LV_ACC = 1;
 	public static final byte LV_BASE = 2;
@@ -1179,10 +1196,10 @@ public class Data {
 	public static final int LV_XP = 8;
 	public static final byte LV_TOT = 9;
 
-	// default treasure value
+	// お宝配列 MT の既定値
 	public static final int[] MT = new int[] { 300, 300, 300, 300, 300, 300, 600, 600, 600, 300, 300 };
 
-	// treasure index
+	// お宝配列 MT の添字
 	public static final byte T_ATK = 0;
 	public static final byte T_DEF = 1;
 	public static final byte T_RES = 2;
@@ -1196,7 +1213,7 @@ public class Data {
 	public static final int T_XP2 = 10;
 	public static final byte T_TOT = 11;
 
-	// abi bit filter
+	// 能力ビットフィルター。AB_* はビット値
 	public static final int AB_GOOD = 1;
 	public static final int AB_RESIST = 1 << 1;
 	public static final int AB_MASSIVE = 1 << 2;
@@ -1220,7 +1237,7 @@ public class Data {
 	public static final int AB_SKILL = 1 << 20;
 	public static final int AB_VKILL = 1 << 21;
 
-	// abi index
+	// 能力アイコンなどの配列添字。ABI_* は AB_* のビット位置に対応
 	public static final byte ABI_GOOD = 0;
 	public static final byte ABI_RESIST = 1;
 	public static final byte ABI_MASSIVE = 2;
@@ -1245,7 +1262,7 @@ public class Data {
 	public static final byte ABI_VKILL = 21;
 	public static final byte ABI_TOT = 22;// 20 currently
 
-	// proc index
+	// Proc.getArr()、procSharable、Proc アイコンで共有する添字。Proc の @Order と一致
 	public static final int P_KB = 0;
 	public static final int P_STOP = 1;
 	public static final int P_SLOW = 2;
@@ -1261,40 +1278,38 @@ public class Data {
 	public static final int P_CURSE = 12;
 	public static final int P_SEAL = 13;
 	/**
-	 * 0:prob, 1:ID, 2:location, 3: buff, 4:conf, 5:time<br>
-	 * <br>
-	 * +0: direct, +1: warp, +2:burrow, +4:disregard limit, +8: fix buff, +16: same
-	 * health, +32: diff layer, +64 on hit, +128 on kill
+	 * Proc.SUMMON の順序は 0=prob、1=id、2=form、3=mult、4=dis、5=max_dis、
+	 * 6=min_layer、7=max_layer、8=time、9=tba、100=type。
 	 */
 	public static final int P_SUMMON = 14;
 	/**
-	 * 0:prob, 1:speed, 2:width (left to right), 3:time, 4:origin (center), 5:itv
+	 * Proc.TIME の順序は 0=prob、1=time、2=intensity。
 	 */
 	public static final int P_TIME = 15;
 	public static final int P_SNIPER = 16;
 	/**
-	 * 0:prob, 1:time (-1 means infinite), 2:ID, 3: type 0 : Change only BG 1 : Kill
-	 * all and change BG
+	 * Proc.THEME の順序は 0=prob、1=time、2=id、3=mus、4=type。
+	 * type の kill ビットが全対象の撃破を伴うかを表す。
 	 */
 	public static final int P_THEME = 17;
 	public static final int P_BOSS = 18;
 	/**
-	 * 0:prob, 1:time, 2:dmg, 3:itv, 4: conf +0: normal, +1: of total, +2: of
-	 * current, +3: of lost, +4: unstackable
+	 * 旧配列形式の対応: 0=prob、1=time、2=dmg、3=itv、4=conf。
+	 * conf の下位値は通常・最大値基準・現在値基準・減少値基準、追加ビット +4 は重複不可。
 	 */
 	public static final int P_POISON = 19;
 	public static final int P_SATK = 20;
 	/**
-	 * official poison
+	 * ゲーム本体形式の毒 Proc。
 	 */
 	public static final int P_POIATK = 21;
 	/**
-	 * Make target receive n% damage more/less 0: chance, 1: duration, 2: debuff
+	 * 旧配列形式の対応: 0=発動率、1=持続時間、2=被ダメージ増減率。
 	 */
 	public static final int P_ARMOR = 22;
 	/**
-	 * Make target move faster/slower 0: chance, 1: duration, 2: speed, 3: type type
-	 * 0: Current speed * (100 + n)% type 1: Current speed + n type 2: Fixed speed
+	 * 旧配列形式の対応: 0=発動率、1=持続時間、2=速度、3=type。
+	 * type 0 は現在速度への割合補正、type 1 は加算、type 2 は固定速度。
 	 */
 	public static final int P_SPEED = 23;
 	public static final int P_STRONG = 24;
@@ -1322,11 +1337,9 @@ public class Data {
 	public static final int P_DMGCAP = 46;
 	public static final int P_BURROW = 47;
 	/**
-	 * body proc: 0: add revive time for zombies, -1 to make it infinite, revivable
-	 * zombies only 1: revive time 2: revive health 3: point 1 4: point 2 5: type:
-	 * 0/1/2/3: duration: in range and normal/in range/ master lifetime/permanent
-	 * +4: make Z-kill unusable +8: revive non-zombie also +16: applicapable to
-	 * others
+	 * 旧配列形式の対応: 0=count、1=time、2=health、3=dis_0、4=dis_1、5=type。
+	 * type 下位2ビットは範囲と存続期間の組み合わせ、追加ビットは Zキラー無効・非ゾンビ蘇生・他対象への適用を表す。
+	 * count の -1 は無期限として扱われる。
 	 */
 	public static final int P_REVIVE = 48;
 	public static final int P_BARRIER = 49;
@@ -1334,7 +1347,7 @@ public class Data {
 	public static final int P_DEATHSURGE = 51;
 	public static final int P_BOUNTY = 52;
 	public static final int P_ATKBASE = 53;
-	public static final int P_BSTHUNT = 54; //Beast Killer
+	public static final int P_BSTHUNT = 54; // 超獣特効
 	public static final int P_MINIVOLC = 55;
 	public static final int P_SPIRIT = 56;
 	public static final int P_METALKILL = 57;
@@ -1342,9 +1355,9 @@ public class Data {
 	public static final int P_HPREGEN = 59;
 	public static final int P_BLAST = 60;
 	public static final int P_IMUBLAST = 61;
-	public static final int P_LETHARGY = 62; // Works like Speed
+	public static final int P_LETHARGY = 62; // SPEED と同様の処理方式
 	public static final int P_IMULETH = 63;
-	public static final int P_DELAY = 64; // Works like Speed
+	public static final int P_DELAY = 64; // SPEED と同様の処理方式
 	public static final int P_IMUDELAY = 65;
 	public static final byte PROC_TOT = 66;
 	public static final byte PROC_WIDTH = 6;
@@ -1430,12 +1443,12 @@ public class Data {
 	};
 
 	/**
-	 * Procs in here are shareable on any hit for BC entities, but not shareable for custom entities
+	 * ゲーム本体由来のエンティティでは全攻撃段に共有するが、カスタムエンティティでは共有しない Proc。
 	 */
 	public static final int[] BCShareable = { P_BOUNTY, P_ATKBASE };
 
 	/**
-	 * Procs in this list are removed when an unit is hit and has a barrier or Aku shield active
+	 * バリアまたは悪魔シールドが有効なユニットへの命中時に除去される Proc。
 	 */
 	public static final byte[] REMOVABLE_PROC = {
 			P_STOP, P_SLOW, P_WEAK, P_CURSE, P_SEAL, P_POISON, P_ARMOR, P_SPEED, P_LETHARGY, P_DELAY
@@ -1464,8 +1477,9 @@ public class Data {
 	// 2 for Base stat
 	// 3 for Immune
 	// 4 for Trait
-	// TODO: fix copying immunity talent
-	public static final int[][] PC_CORRES = new int[][] { // NP value table { type, proc, mod count, connect to other proc }
+	// TODO: 耐性本能のコピーを修正
+	/** 各行は本能番号に対応し、列は {種別、Proc/能力/基礎値の添字、変更値数、接続先本能番号}。 */
+	public static final int[][] PC_CORRES = new int[][] { // NP 値対応表
 			{ -1, 0, 0, -1 }, // 0:
 			{ 0, P_WEAK, 3, -1 }, // 1: weak, reversed health or relic-weak
 			{ 0, P_STOP, 2, -1 }, // 2: stop
@@ -1538,7 +1552,7 @@ public class Data {
 			{ 3, P_IMUBLAST, 0, 69 } // 69: immune to blast todo: when resist blast comes, connect to that talent
 	};
 
-	// foot icon index used in battle
+	// 戦闘中の足元アイコン添字。負値は通常の Proc 添字と区別する特殊表示
 	public static final byte INV = -1;
 	public static final byte INVWARP = -2;
 	public static final byte STPWAVE = -3;
@@ -1588,7 +1602,7 @@ public class Data {
 	public static final byte C_IMUVOLC = 28;
 	public static final byte C_TOT = 29;
 
-	// Effects Anim index
+	// エフェクトアニメーション添字。旧来の配列対応を含むため宣言順とは限らない
 	public static final byte A_KB = 29;
 	public static final byte A_CRIT = 28;
 	public static final byte A_SHOCKWAVE = 27;
@@ -1733,7 +1747,7 @@ public class Data {
 	public static final String[] A_PATH = new String[] { "down", "up", "slow", "stop", "shield", "farattack",
 			"wave_invalid", "wave_stop", "waveguard" };
 
-	// After this line all number is game data
+	// ここから下の数値はゲームデータ由来
 
 	public static final byte INT_KB = 0, INT_HB = 1, INT_SW = 2, INT_ASS = 3, INT_WARP = 4;
 
@@ -1874,7 +1888,7 @@ public class Data {
 	public static final int BG_EFFECT_BALLOON = 8;
 	public static final int BG_EFFECT_ROCK = 9;
 
-	//Below are completely guessed
+	// 以下はすべて推測値
 	public static final int BG_EFFECT_STAR_TIME = 35;
 	public static final int BG_EFFECT_STAR_Y_RANGE = 140;
 	public static final int BG_EFFECT_SPLASH_MIN_HEIGHT = 90;
@@ -1906,7 +1920,7 @@ public class Data {
 	public static final int COUNTER_SURGE_SOUND = 18;
 	public static final int SPIRIT_SUMMON_RANGE = 150;
 	public static final int SPIRIT_SUMMON_DELAY = 15; // unsure
-	public static final int SUPER_SAGE_RESIST = 70; // todo: sage value consistency to match other percentage data standard
+	public static final int SUPER_SAGE_RESIST = 70; // todo: 他の割合データ表現と賢者値の単位を統一
 	public static final String[] SUPER_SAGE_RESIST_TYPE = { "IMUWEAK", "IMUSTOP", "IMUSLOW", "IMUCURSE", "IMUKB", "IMUWARP", "IMUDELAY" };
 	public static final float SUPER_SAGE_HUNTER_ATTACK = 1.2f;
 	public static final float SUPER_SAGE_HUNTER_HP = 0.5f;
@@ -1925,16 +1939,14 @@ public class Data {
 	}
 
 	/**
-	 * convenient method to log an unexpected error. Don't use it to process any
-	 * expected error
+	 * 想定外の例外を記録するための簡易メソッド。想定内のエラー処理には使用しない。
 	 */
 	public static boolean err(RunExc s) {
 		return CommonStatic.ctx.noticeErr(s, ErrType.ERROR, "unexpected error");
 	}
 
 	/**
-	 * convenient method to log an unexpected error. Don't use it to process any
-	 * expected error
+	 * 想定外の例外を記録するための簡易メソッド。想定内のエラー処理には使用しない。
 	 */
 	public static <T> T err(SupExc<T> s) {
 		return CommonStatic.ctx.noticeErr(s, ErrType.ERROR, "unexpected error");
@@ -2052,7 +2064,7 @@ public class Data {
 				if (((ab >> i1) & 1) > 0)
 					newAbi |= 1 << i;
 			}
-		} else if (ver == 1) { //Reformat Bounty and Base destroyer
+		} else if (ver == 1) { // BOUNTY と ATKBASE の配置変更
 			for (int i = 0; i + abiAdd < ABI_TOT; i++) {
 				if (i == 4)
 					abiAdd += 2;

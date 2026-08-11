@@ -28,8 +28,16 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Consumer;
 
+/**
+ * ユーザーパック内リソースへのアクセスを、編集可能なワークスペースと読取専用BCUパックで統一する。
+ * {@link Workspace}は実ファイルを所有し、{@link ZipSource}は{@link ZipDesc}の仮想ツリーと遅延復号を利用する。
+ * {@link #streamFile(String)}が返すストリームは呼び出し側が閉じる必要がある。
+ */
 public abstract class Source {
 
+	/**
+	 * 1組のアニメーション構成ファイルを遅延取得し、必須ファイルの整合性を検証する契約。
+	 */
 	public interface AnimLoader {
 		VImg getEdi();
 
@@ -48,23 +56,30 @@ public abstract class Source {
 		VImg getUni();
 
 		/**
-		 * Validate if animation loader can load data without any error
+		 * 種別ごとの必須ファイルをすべて取得可能か検証する。
 		 *
-		 * @param type Type of this animation. For example, soul animation won't need deploy icon
+		 * @param type アニメーション種別。魂では出撃アイコンを要求しない
 		 *
-		 * @return Whether loader contains any corrupted data or not
+		 * @return 必須ファイルがすべて存在する場合は{@code true}
 		 */
 		boolean validate(AnimU.ImageKeeper.AnimationType type);
 
 		List<String> collectInvalidAnimation(AnimU.ImageKeeper.AnimationType type);
 	}
 
+	/**
+	 * 基準フォルダーとリソース位置から個別ファイルを解決する契約。
+	 */
 	public interface SourceLoader {
 
 		FileData loadFile(BasePath base, ResourceLocation id, String str);
 
 	}
 
+	/**
+	 * パック、用途別基準フォルダー、パック内IDでアニメーションまたはリプレイを参照する直列化表現。
+	 * 注入後に読込中ソースを参照し、旧パックの基準フォルダーとアニメーション尺度を補正する。
+	 */
 	@JsonClass
 	public static class ResourceLocation {
 
@@ -131,7 +146,7 @@ public abstract class Source {
 		public void onInjectSource() {
 			Object zip = UserProfile.getStatic(UserProfile.CURRENT_PACK, () -> null);
 
-			if (zip == null) // FIXME Check if replays of external packs aren't null
+			if (zip == null) // FIXME 外部パックのリプレイがnullにならないか未確認
 				return;
 
 			if (this.pack.equals(LOCAL) && zip instanceof ZipSource) {
@@ -160,6 +175,10 @@ public abstract class Source {
 
 	}
 
+	/**
+	 * {@link SourceLoader}からBCU標準のアニメーションファイル名を解決する実装。
+	 * 0.7.8.0より前の外部パックでは旧アニメーション解釈を有効にする。
+	 */
 	@StaticPermitted
 	public static class SourceAnimLoader implements Source.AnimLoader {
 
@@ -317,6 +336,9 @@ public abstract class Source {
 		}
 	}
 
+	/**
+	 * 編集中アニメーションをワークスペースの標準ファイル構成へ保存・削除する所有者。
+	 */
 	public static class SourceAnimSaver {
 
 		private final ResourceLocation id;
@@ -328,8 +350,9 @@ public abstract class Source {
 		}
 
 		/**
-		 * Delete animation
-		 * @param unload If this variable is true, it means that this method is called for completely deleting process
+		 * アニメーションの保存先を削除する。
+		 *
+		 * @param unload 完全削除としてメモリ上のアニメーションも破棄する場合は{@code true}
 		 */
 		public void delete(boolean unload) {
 			if(unload)
@@ -401,6 +424,10 @@ public abstract class Source {
 
 	}
 
+	/**
+	 * 編集可能なパックをワークスペース配下の実ファイルとして読み書きするソース。
+	 * エクスポート時はローカルアニメーションを一時的にパック内IDへ写し、正常完了後に元の参照へ戻す。
+	 */
 	public static class Workspace extends Source {
 
 		public static void loadAnimations(String id) {
@@ -690,6 +717,9 @@ public abstract class Source {
 
 	}
 
+	/**
+	 * BCUパックを展開せず、仮想ファイルツリーと復号ストリームから読み取るソース。
+	 */
 	public static class ZipSource extends Source {
 
 		public final ZipDesc zip;
@@ -779,6 +809,9 @@ public abstract class Source {
 
 	}
 
+	/**
+	 * パック内で用途ごとに固定された基準フォルダー名。
+	 */
 	public enum BasePath {
 		ANIM("animations"),
 		BG("backgrounds"),
@@ -786,7 +819,7 @@ public abstract class Source {
 		MUSIC("musics"),
 		REPLAY("replays"),
 		SOUL("souls"),
-		TRAIT("traitIcons"), // i would prefer this not be traitIcons to match with rest of folders
+		TRAIT("traitIcons"), // 他のフォルダー名と形式を揃えるならtraitIcons以外が望ましい
 		ENERAND("enerand");
 
 		private final String path;
@@ -816,13 +849,13 @@ public abstract class Source {
 	public abstract AnimCI loadAnimation(String name, BasePath base);
 
 	/**
-	 * read images from file. Use it
+	 * 用途別フォルダーから3桁IDの画像を読み取る。
 	 */
-	//TODO: might be able to use BasePath for path
+	// TODO pathにBasePathを使えるかもしれない
 	public abstract VImg readImage(String path, int ind);
 
 	/**
-	 * used for streaming music. Do not use it for images and small text files
+	 * 音楽などの連続読取用ストリームを開く。画像や小さなテキストには使用しない。
 	 */
 	public abstract InputStream streamFile(String path) throws Exception;
 

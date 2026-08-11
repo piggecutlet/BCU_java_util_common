@@ -10,6 +10,10 @@ import common.util.Data;
 import java.io.PrintStream;
 import java.util.Queue;
 
+/**
+ * 1枚のスプライトシートをアニメーション部品へ分割する矩形定義。
+ * {@link #cut(FakeImage)} は保存済み矩形を変更せず、画像境界へ収まるよう複製した値だけを補正して切り出す。
+ */
 public class ImgCut extends Data implements Cloneable {
 
 	public static ImgCut newIns(FileData f) {

@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 背景55の部品20を加算合成し、時間に応じて拡縮する光点として前景へ描画する効果。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class ShiningBGEffect extends BackgroundEffect {
     private final FakeImage shine;

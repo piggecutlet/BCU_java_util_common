@@ -39,30 +39,52 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
 
+/**
+ * BCUパックと複数パック資産コンテナの読み書きを担う。
+ * 単一パックは16バイト識別子、ファイル内に格納する16バイト鍵、4バイトのJSON長、
+ * AES/CBC/NoPaddingで16バイト境界へゼロ埋めした記述子と各ファイル本体の順で構成される。
+ * 読み出した個別ファイルのストリームは呼び出し側が閉じる必要がある。
+ * {@link ZipDesc#unzip(PatchFile, Consumer)}では末尾の連続ゼロをパディングとして除去する。
+ */
 @StaticPermitted
 public class PackLoader {
 
+	/**
+	 * 展開先の相対パスを実ファイルへ解決する契約。
+	 */
 	public interface PatchFile {
 
 		File getFile(String path) throws Exception;
 
 	}
 
+	/**
+	 * パック内ファイルを事前読込対象とするか判定する契約。
+	 */
 	public interface Preload {
 
 		boolean preload(FileDesc fd);
 
 	}
 
+	/**
+	 * パック記述子ごとの事前読込方針を供給する契約。
+	 */
 	public interface Preloader {
 
 		Preload getPreload(ZipDesc desc);
 
 	}
 
+	/**
+	 * パックのメタデータ、ファイル配置、暗号化された本体への遅延アクセスを束ねる記述子。
+	 */
 	@JsonClass(read = RType.FILL)
 	public static class ZipDesc {
 
+		/**
+		 * パック内の相対パス、平文サイズ、暗号化領域内オフセットを保持するファイル記述子。
+		 */
 		@JsonClass
 		public static class FileDesc implements FileData {
 
@@ -75,8 +97,8 @@ public class PackLoader {
 			@JsonField
 			private int offset;
 
-			private File file; // writing only
-			private ZipDesc pack; // reading only
+			private File file; // 書き込み時のみ
+			private ZipDesc pack; // 読み込み時のみ
 
 			public FileDesc(FileSaver parent, String path, File f) {
 				this.path = path;
@@ -245,6 +267,9 @@ public class PackLoader {
 		}
 	}
 
+	/**
+	 * パックヘッダーと暗号化領域を読み、個別ファイル用ストリームを生成する読み取り状態。
+	 */
 	private static class FileLoader {
 
 		private static class FLStream extends InputStream {
@@ -374,6 +399,9 @@ public class PackLoader {
 
 	}
 
+	/**
+	 * パックの記述子と各ファイルを暗号化し、宛先ストリームを完了時に閉じる書き込み状態。
+	 */
 	private static class FileSaver {
 
 		@StaticPermitted

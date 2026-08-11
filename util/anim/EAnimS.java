@@ -4,6 +4,10 @@ import common.CommonStatic;
 import common.system.P;
 import common.system.fake.FakeGraphics;
 
+/**
+ * タイムラインを適用せず、モデルの初期姿勢だけを表示する編集用アニメーション。
+ * 時刻と長さを持たず、モデル階層や描画順の確認に使われる。
+ */
 public class EAnimS extends EAnimI {
 
 	public EAnimS(AnimI<?, ?> ia, MaModel mm) {

@@ -7,12 +7,17 @@ import common.util.Data;
 import java.io.PrintStream;
 import java.util.Queue;
 
+/**
+ * 1つのモデル部品に対する1種類の変更を、キーフレーム列として保持するタイムライントラック。
+ * {@code ints} は対象部品、変更種別、ループ指定などの制御値を持ち、各 {@code moves} は
+ * フレーム、値、補間種別、補間パラメータの順で解釈される。
+ */
 public class Part extends Data implements Cloneable, Comparable<Part> {
 
 	public int[] ints = new int[5];
 	public String name;
 	public int n, max, off, fir;
-	public float frame, vd;// for editor only
+	public float frame, vd;// エディタ表示専用
 	public int[][] moves;
 
 	public Part() {
@@ -116,6 +121,11 @@ public class Part extends Data implements Cloneable, Comparable<Part> {
 		validate();
 	}
 
+	/**
+	 * 指定時刻の値を対象部品へ適用する。
+	 * 補間種別に応じて段階、線形、イージング、連続区間の多項式補間を切り替え、
+	 * 画像番号だけは整数境界で意図せず次の画像へ進まない丸め方を行う。
+	 */
 	protected void update(float f, EPart[] es) {
 		frame = f;
 
@@ -205,6 +215,7 @@ public class Part extends Data implements Cloneable, Comparable<Part> {
 	}
 
 	protected void write(PrintStream ps) {
+		// メモリ上で正規化された時刻からオフセットを戻し、元のファイル座標系で保存する。
 		for (int val : ints)
 			ps.print(val + ",");
 		ps.println(name);

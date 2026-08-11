@@ -9,6 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
+/**
+ * ファイル配置、削除確認、事前読込、復元、エラー通知を実行環境から分離する境界。
+ * {@code noticeErr}系は例外を通知へ変換して、失敗を{@code false}または{@code null}として返す。
+ * 返却される入力ストリームのクローズ責任は呼び出し側にある。
+ */
 public interface Context {
 
 	enum ErrType {

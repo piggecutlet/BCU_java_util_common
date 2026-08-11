@@ -28,7 +28,9 @@ import common.util.unit.Trait;
 import java.util.*;
 
 /**
- * Entity class for units and enemies
+ * 味方・敵に共通する戦闘中の状態機械。
+ * 移動・攻撃・ノックバック・潜行・復活・死亡をフレーム単位で進行し、被ダメージは
+ * {@link #postUpdate()} まで蓄積してからHPと割り込みへ確定する。
  */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public abstract class Entity extends AbEntity {
@@ -44,60 +46,42 @@ public abstract class Entity extends AbEntity {
 		private final int[][] status;
 
 		/**
-		 * dead FSM time <br>
-		 * -1 means not dead<br>
-		 * positive value means time remain for death anim to play
+		 * 死亡演出の残り時間。-1は生存中、正数は死亡演出中、0は演出完了。
 		 */
 		public int dead = -1;
 
 		/**
-		 * KB anim, null means not being KBed, can have various value during battle
+		 * ノックバック演出。{@code null} はノックバック外。
 		 */
 		private EAnimD<KBEff> back;
 
-		/**
-		 * entity anim
-		 */
 		private final EAnimU anim;
 
-		/**
-		 * corpse anim
-		 */
 		public EAnimD<ZombieEff> corpse;
 
 		/**
-		 * soul anim, null means not dead yet
+		 * 昇天演出。{@code null} は未生成。
 		 */
 		private EAnimI soul;
 
-		/**
-		 * smoke animation for each entity
-		 */
 		public EAnimD<DefEff> smoke;
 
-		/**
-		 * Layer for smoke animation
-		 */
 		public int smokeLayer;
 
-		/**
-		 * x-pos of smoke animation
-		 */
 		public int smokeX;
 
 		/**
-		 * responsive effect FSM time
+		 * 一時応答エフェクトの残り時間。
 		 */
 		private int efft;
 
 		/**
-		 * responsive effect FSM type
+		 * 一時応答エフェクトの種別。
 		 */
 		private byte eftp;
 
 		/**
-		 * on-entity effect icons<br>
-		 * index defined by Data.A_()
+		 * 実体上に表示する能力エフェクト。添字は {@code Data.A_*} 定数に対応する。
 		 */
 		private final EAnimD<?>[] effs = new EAnimD[A_TOT];
 
@@ -108,11 +92,11 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * draw this entity
+		 * 死亡・復活・ノックバック状態に応じた実体アニメーションを描画する。
 		 */
 		public void draw(FakeGraphics gra, P p, float siz) {
 			if (dead > 0 && soul != null) {
-				//100 is guessed value comparing from BC
+				// 本家との比較から推測した高さ補正
 				p.y -= 100 * siz;
 				soul.draw(gra, p, siz);
 				return;
@@ -162,7 +146,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * draw the effect icons
+		 * 有効中の能力エフェクトを描画する。
 		 */
 		public void drawEff(FakeGraphics g, P p, float siz) {
 			if (dead != -1)
@@ -221,7 +205,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * get an effect icon
+		 * 指定された能力エフェクトを生成または更新する。
 		 */
 		@SuppressWarnings("unchecked")
 		public void getEff(int t) {
@@ -436,7 +420,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * update effect icons animation
+		 * 状態配列に合わせて能力エフェクトの寿命を更新する。
 		 */
 		private void checkEff() {
 			int dire = e.dire;
@@ -544,8 +528,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * process kb animation <br>
-		 * called when kb is applied
+		 * 割り込み種別に対応するノックバック演出と時間を設定する。
 		 */
 		private void kbAnim() {
 			int t = e.kb.kbType;
@@ -583,7 +566,7 @@ public abstract class Entity extends AbEntity {
 			if (t != INT_WARP)
 				e.kbTime += 1;
 
-			// Z-kill icon
+			// ゾンビキラー撃破演出
 			if (e.health <= 0 && e.zx.tempZK && e.traits.contains(UserProfile.getBCData().traits.get(TRAIT_ZOMBIE))) {
 				EAnimD<DefEff> eae = effas().A_Z_STRONG.getEAnim(DefEff.DEF);
 				e.basis.lea.add(new EAnimCont(e.pos, e.currentLayer, eae));
@@ -595,7 +578,7 @@ public abstract class Entity extends AbEntity {
 		private int deathSurge = 0;
 
 		/**
-		 * set kill anim
+		 * 撃破時能力を抽選し、死亡演出を設定する。
 		 */
 		private void kill() {
 			if (e.getProc().DEATHSURGE.perform(e.basis.r))
@@ -664,7 +647,7 @@ public abstract class Entity extends AbEntity {
 			if (anim.done() && anim.type == UType.ENTER)
 				setAnim(UType.IDLE, true);
 			if (dead >= 0) {
-				if (deathSurge > 0 && soul.len() - dead == 21) // 21 is guessed delay compared to BC
+				if (deathSurge > 0 && soul.len() - dead == 21) // 21フレームは本家との比較から推測
 					e.aam.getDeathSurge(deathSurge);
 				boolean selfDestructed = ((e.getAbi() & AB_GLASS) != 0) && e.health > 0;
 				if (!selfDestructed && e.data.getResurrection() != null) {
@@ -718,36 +701,36 @@ public abstract class Entity extends AbEntity {
 	protected static class AtkManager extends BattleObj {
 
 		/**
-		 * atk FSM time
+		 * 攻撃アニメーションの残り時間。
 		 */
 		protected int atkTime;
 
 		private int attacksLeft;
 
 		/**
-		 * atk id primarily for display
+		 * このフレームで発生した攻撃の添字。主に当たり判定表示用。
 		 */
 		private int tempAtk = -1;
 
 		private final Entity e;
 
 		/**
-		 * const field, attack count
+		 * 通常攻撃スロット数。
 		 */
 		private final int multi;
 
 		/**
-		 * atk loop FSM type
+		 * 次に処理する攻撃スロット。
 		 */
 		private int preID;
 
 		/**
-		 * pre-atk time const field
+		 * 各攻撃スロットの予備動作時間。
 		 */
 		private final int[] pres;
 
 		/**
-		 * atk loop FSM time
+		 * 次の攻撃発生までの残り時間。
 		 */
 		private int preTime;
 
@@ -773,7 +756,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * update attack state
+		 * 同時発生スロットを1つ抽選し、全スロット処理後に待機時間へ移る。
 		 */
 		private void updateAttack() {
 			atkTime--;
@@ -805,24 +788,24 @@ public abstract class Entity extends AbEntity {
 	private static class KBManager extends BattleObj {
 
 		/**
-		 * KB FSM type
+		 * 実行中の割り込み種別。
 		 */
 		private int kbType;
 
 		private final Entity e;
 
 		/**
-		 * remaining distance to KB
+		 * ノックバックの残り移動距離。
 		 */
 		private float kbDis;
 
 		/**
-		 * temp field to store wanted KB length
+		 * 次のフレームで開始する割り込みの移動距離。
 		 */
 		private float tempKBdist;
 
 		/**
-		 * temp field to store wanted KB type
+		 * 次のフレームで開始する割り込み種別。-1は予約なし。
 		 */
 		private int tempKBtype = -1;
 
@@ -835,7 +818,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * process the interruption received
+		 * 優先度選択済みの割り込み予約を状態へ反映する。
 		 */
 		private void doInterrupt() {
 			int t = tempKBtype;
@@ -882,9 +865,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * update KB state <br>
-		 * in KB state: deal with warp, KB go back, and anim change <br>
-		 * end of KB: check whether it's killed, deal with revive
+		 * ノックバック・ワープの移動と演出を進め、終了時にシールド再生・復活・死亡を判定する。
 		 */
 		private void updateKB() {
 			e.kbTime--;
@@ -977,7 +958,7 @@ public abstract class Entity extends AbEntity {
 		private void add(POISON ws) {
 			if (ws.type.unstackable)
 				list.removeIf(e -> e.type.unstackable && type(e) == type(ws));
-			ws.prob = 0; // used as counter
+			ws.prob = 0; // 次の発動までのカウンターとして再利用
 			list.add(ws);
 			getMax();
 		}
@@ -1004,7 +985,7 @@ public abstract class Entity extends AbEntity {
 				POISON ws = list.get(i);
 				if (ws.time > 0) {
 					ws.time--;
-					ws.prob--;// used as counter for itv
+					ws.prob--;// 発動間隔のカウンターとして再利用
 					if (e.health > 0 && ws.prob <= 0) {
 						if (!ws.type.ignoreMetal && (e instanceof EEnemy && e.data.getTraits().contains(UserProfile.getBCData().traits.get(TRAIT_METAL)) || (e instanceof EUnit && (e.getAbi() & AB_METALIC) != 0)))
 							e.damage += 1;
@@ -1110,7 +1091,7 @@ public abstract class Entity extends AbEntity {
 		private final Set<Entity> list = new HashSet<>();
 
 		/**
-		 * temp field: marker for zombie killer
+		 * このフレームの致死攻撃にゾンビキラーが含まれたか。
 		 */
 		private boolean tempZK;
 
@@ -1187,7 +1168,7 @@ public abstract class Entity extends AbEntity {
 			if (!tempZK && c > 0) {
 				int[][] status = e.status;
 				doRevive(c);
-				// clear state
+				// 復活時に継続状態を解除する
 				status[P_STOP] = new int[PROC_WIDTH];
 				status[P_SLOW] = new int[PROC_WIDTH];
 				status[P_WEAK] = new int[PROC_WIDTH];
@@ -1213,7 +1194,7 @@ public abstract class Entity extends AbEntity {
 		}
 
 		/**
-		 * update revive status
+		 * 周囲の復活付与元を更新し、死体・復活動作を進行する。
 		 */
 		private void updateRevive() {
 			int[][] status = e.status;
@@ -1303,148 +1284,96 @@ public abstract class Entity extends AbEntity {
 
 	private final SummonManager bondTree = new SummonManager();
 
-	/**
-	 * game engine, contains environment configuration
-	 */
 	public final StageBasis basis;
 
-	/**
-	 * entity data, read only
-	 */
 	public final MaskEntity data;
 
-	/**
-	 * group, used for search
-	 */
 	public int group;
 
 	/**
-	 * Summoned entity without using summon ability<br>
-	 * This is for calculating specific entity's actual damage output during the battle<br>
-	 * This entity must not be removed from entity list in battle (Indicator of atk, hp, etc.)<br>
-	 * if this list isn't empty
+	 * この実体から派生して存続中の持続攻撃。
+	 * 空になるまでは、実体本体の死亡演出完了後も集計対象として戦場に残す。
 	 */
 	public final List<ContAb> summoned = new ArrayList<>();
 
 	/**
-	 * Confirmation that this entity is fully dead, not being able to be revived, etc.<br>
-	 * This variable is for counting entity number when summoned variable isn't empty
+	 * 復活不能まで確定した死亡状態。持続攻撃が残る実体を出撃数から除外するためにも使う。
 	 */
 	public boolean dead = false;
 
 	/**
-	 * Damage given to targets<br>
-	 * If entity has area attack and attacked several targets, then formula will be dmg * number_of_targets<br>
-	 * Formula for calculating damage done to each target is min(atk, target_hp)
+	 * 対象ごとに {@code min(確定ダメージ, 攻撃前HP)} を加算した与ダメージ合計。
 	 */
 	public long damageGiven = 0;
 
-	/**
-	 * Damage taken from opponents
-	 */
 	public long damageTaken = 0;
 
-	/**
-	 * Total number of entities killed
-	 */
 	public int killCount = 0;
 
 	/**
-	 * Attacks it got hit by in the current frame.
-	 * This gets instantly cleared upon post update.
+	 * 現在フレームに命中した攻撃。{@link #postUpdate()} の末尾で消去する。
 	 */
 	public Set<AttackAb> lastHitBy = new HashSet<>();
 
 	/**
-	 * Attacks it got hit by on the frame of KB into death.
+	 * 最終ノックバックへ入ったフレームの攻撃。撃破報酬の攻撃元判定に使う。
 	 */
 	public Set<AttackAb> lastKilledBy = new HashSet<>();
 
-	/**
-	 * The time that this entity has been alive
-	 */
 	public int livingTime = 0;
 
 	private final KBManager kb = new KBManager(this);
 
-	/**
-	 * layer of display, constant field
-	 */
 	public int currentLayer;
 
-	/**
-	 * layer when spawned in
-	 */
 	public int spawnLayer;
 
 	/**
-	 * proc status, contains ability-specific status data
+	 * 能力別の実行時状態。第1添字は {@code P_*}、第2添字の意味は能力ごとに異なる。
 	 */
 	public final int[][] status = new int[PROC_TOT][PROC_WIDTH];
 
-	/**
-	 * trait of enemy, also target trait of unit, uses list
-	 */
 	public List<Trait> traits;
 
-	/**
-	 * attack model
-	 */
 	protected final AtkModelEntity aam;
 
 	/**
-	 * temp field: damage accumulation
+	 * 現在フレームの未確定ダメージ。{@link #postUpdate()} でHPへ反映して0へ戻す。
 	 */
 	private long damage;
 
-	/**
-	 * const field
-	 */
 	protected boolean isBase;
 
 	/**
-	 * KB/burrow state: <br>
-	 * -1: dead (spirit) <br>
-	 * positive: KB time count-down <br>
-	 * negative: burrow type <br>
-	 * 0: none of the above
+	 * ノックバック・潜行状態。
+	 * -1は死亡、正数は割り込み残り時間、-2/-3/-4は潜行開始/移動/浮上、0は通常状態。
 	 */
 	private int kbTime;
 
 	/**
-	 * wait FSM time (TBA)
+	 * 次の攻撃開始までの待機時間。
 	 */
 	private int waitTime;
 
-	/**
-	 * remaining burrow distance
-	 */
 	private float bdist;
 
-	/**
-	 * poison proc processor
-	 */
 	private final PoisonToken pois = new PoisonToken(this);
 
 	/**
-	 * abilities that are activated after it's attacked
+	 * ダメージ確定後に発動条件を判定する命中時能力。
 	 */
 	private final List<AttackAb> tokens = new ArrayList<>();
 
 	/**
-	 * temp field within an update loop <br>
-	 * used for moving determination
+	 * 現在フレームの接触有無。
 	 */
 	private boolean touch;
 
 	/**
-	 * temp field: whether it can attack
+	 * 接触対象のうち、対象限定条件を満たす相手がいるか。
 	 */
 	private boolean touchEnemy;
 
-	/**
-	 * weak proc processor
-	 */
 	private final WeakToken weaks = new WeakToken(this);
 
 	private int altAbi = 0;
@@ -1452,40 +1381,26 @@ public abstract class Entity extends AbEntity {
 	private final Proc sealed = Proc.blank();
 
 	/**
-	 * determines whether to skip burrowing at spawn point
-	 * burrow will happen after the first step or the first attack
-	 * only used by boss
+	 * 出現直後の潜行を抑止するフラグ。ボスは最初の移動または攻撃後に潜行可能になる。
 	 */
 	protected boolean skipSpawnBurrow = false;
 
-	/**
-	 * temporary value for move check
-	 */
 	protected boolean moved = false;
 
-	/**
-	 * entity's barrier processor
-	 */
 	private final Barrier barrier = new Barrier(this);
 
-	/**
-	 * Entity's shield hp
-	 */
 	public int currentShield, maxCurrentShield;
 
 	/**
-	 * Used for regenerating shield considering enemy's magnification
+	 * 悪魔シールド再生時に適用する生成時HP倍率。
 	 */
 	private final float shieldMagnification;
 
 	/**
-	 * Whether onLastBreathe is called or not
+	 * 最終死亡通知を多重実行しないためのフラグ。
 	 */
 	private boolean killCounted = false;
 
-	/**
-	 * cooldown timer for regeneration ability
-	 */
 	private int regentimer;
 
 	public final Proc proc;
@@ -1562,7 +1477,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * accept attack
+	 * 攻撃を受け、無効・軽減・バリア・シールドを判定して未確定ダメージと能力を蓄積する。
 	 */
 	@Override
 	public boolean damaged(AttackAb atk) {
@@ -1572,7 +1487,7 @@ public abstract class Entity extends AbEntity {
 		boolean proc = true;
 
 		if (getProc().HPREGEN.resetWhenDamaged && getProc().HPREGEN.prob > 0) {
-			regentimer = getProc().HPREGEN.interval; // Reset if enabled
+			regentimer = getProc().HPREGEN.interval; // 被弾時リセット設定
 		}
 
 		if (anim.corpse != null && anim.corpse.type == ZombieEff.REVIVE && status[P_REVIVE][1] >= REVIVE_SHOW_TIME)
@@ -1588,7 +1503,7 @@ public abstract class Entity extends AbEntity {
 			}
 		}
 
-		// if immune to wave and the attack is wave, jump out
+		// 波動無効なら以降の被弾処理を行わない
 		if (atk.waveType != 5 && ((atk.waveType & WT_WAVE) > 0 || (atk.waveType & WT_MINI) > 0) && atk.canon != 16) {
 			if (getProc().IMUWAVE.mult > 0)
 				anim.getEff(P_WAVE);
@@ -1637,7 +1552,7 @@ public abstract class Entity extends AbEntity {
 			if (status[P_IMUATK][0] > 0)
 				return false;
 		}
-		if (getProc().IMUATKANY.exists()) { // todo: figure out if dodge orb is affected by treasure or by dodge ability
+		if (getProc().IMUATKANY.exists()) { // TODO: 回避玉が果実または回避能力の補正を受けるか確認する
 			if (status[P_IMUATK][0] == 0 && getProc().IMUATKANY.perform(basis.r)) {
 				status[P_IMUATK][0] = 30;
 				anim.getEff(P_IMUATK);
@@ -1729,7 +1644,7 @@ public abstract class Entity extends AbEntity {
 		if (!barrierContinue)
 			return false;
 
-		//75.0 is guessed value compared from BC
+		// -75は本家との比較から推測した表示位置
 		if (atk.getProc().CRIT.mult > 0) {
 			basis.lea.add(new EAnimCont(pos, currentLayer, effas().A_CRIT.getEAnim(DefEff.DEF), -75f));
 			basis.leaSort = true;
@@ -1737,7 +1652,7 @@ public abstract class Entity extends AbEntity {
 			CommonStatic.setSE(SE_CRIT);
 		}
 
-		//75.0 is guessed value compared from BC
+		// -75は本家との比較から推測した表示位置
 		if (atk.getProc().SATK.mult > 0) {
 			basis.lea.add(new EAnimCont(pos, currentLayer, effas().A_SATK.getEAnim(DefEff.DEF), -75f));
 			basis.leaSort = true;
@@ -1781,7 +1696,7 @@ public abstract class Entity extends AbEntity {
 		if (atk.atk < 0)
 			anim.getEff(HEAL);
 
-		//75.0 is guessed value compared from BC
+		// 煙の表示位置は本家との比較から推測
 		if (atk.isLongAtk || atk instanceof AttackVolcano)
 			anim.smoke = effas().A_WHITE_SMOKE.getEAnim(DefEff.DEF);
 		else
@@ -1890,7 +1805,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	public boolean processProcs(AttackAb atk) {
-		// process proc part
+		// 属性対象条件を満たす攻撃だけ能力を適用する
 		if (!(traitCompatible(atk.trait, atk.attacker, false) || (receive(-1) && atk.SPtr) || (receive(1) && !atk.SPtr)))
 			return false;
 
@@ -2120,7 +2035,7 @@ public abstract class Entity extends AbEntity {
 			int res = getProc().IMULETH.mult;
 			int tba = data.getTBA();
 
-			boolean isBuff; // Checking if the Lethargy TBA is < the getTBA TBA is how you determine if it's a buff or not for effs
+			boolean isBuff; // 設定TBAと元TBAの大小で強化・弱体化の表示を選ぶ
 
 			if (atkProc.LETHARGY.type == 2)
 				isBuff = (tba > atkProc.LETHARGY.mult && res > 0) || (tba < atkProc.LETHARGY.mult && res < 0);
@@ -2135,7 +2050,7 @@ public abstract class Entity extends AbEntity {
 				status[P_LETHARGY][1] = atkProc.LETHARGY.mult;
 				status[P_LETHARGY][2] = atkProc.LETHARGY.type;
 
-				anim.getEff(P_LETHARGY); // This is the thing where it does the thing
+				anim.getEff(P_LETHARGY);
 			} else
 				anim.getEff(INV);
 		}
@@ -2145,7 +2060,7 @@ public abstract class Entity extends AbEntity {
 	public abstract float getResistValue(AttackAb atk, String procName, int procResist);
 
 	/**
-	 * get the current ability bitmask
+	 * 封印中に残る例外能力を考慮した現在の能力ビット列を返す。
 	 */
 	@Override
 	public int getAbi() {
@@ -2155,14 +2070,14 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * get the currently attack, only used in display and counter
+	 * 表示と反撃計算に使う現在の攻撃力を返す。
 	 */
 	public int getAtk() {
 		return aam.getAtk();
 	}
 
 	/**
-	 * get the current proc array
+	 * 封印状態を考慮した現在の能力集合を返す。
 	 */
 	public Proc getProc() {
 		if (status[P_SEAL][0] > 0)
@@ -2171,7 +2086,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * receive an interrupt
+	 * 優先度判定対象として割り込みを予約する。
 	 */
 	public void interrupt(int t, float d) {
 		if(isBase && health <= 0)
@@ -2186,10 +2101,9 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * mark it dead, proceed death animation
+	 * 死亡状態へ移行して攻撃を停止し、死亡演出を開始する。
 	 *
-	 * @param atk if this is true, it means it dies because of self-destruct,
-	 * and entity will not drop money because of this
+	 * @param atk 死亡理由。通常撃破以外は撃破報酬の対象外
 	 */
 	public void kill(KillMode atk) {
 		if (kbTime == -1)
@@ -2205,7 +2119,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * This function stops enemy attack when continue is used
+	 * コンティニュー時に進行中の攻撃とノックバック演出を打ち切る。
 	 */
 	public void cont() {
 		atkm.stopAtk();
@@ -2213,7 +2127,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * update the entity after receiving attacks
+	 * 蓄積ダメージと能力を確定し、割り込み・死亡・撃破元集計を更新する。
 	 */
 	@Override
 	public void postUpdate() {
@@ -2238,25 +2152,25 @@ public abstract class Entity extends AbEntity {
 			health = maxH;
 		damage = 0;
 
-		// increase damage
+		// 体力低下による攻撃力上昇
 		int strongThreshold = getProc().STRONG.health;
 		if ((touchable() & TCH_CORPSE) == 0 && status[P_STRONG][0] == 0 && strongThreshold > 0 && health * 100 <= maxH * strongThreshold) {
 			status[P_STRONG][0] = getProc().STRONG.mult;
 			anim.getEff(P_STRONG);
 		}
-		// berserker increase damage
+		// 撃破数による攻撃力上昇
 		int requiredKills = getProc().BERSERK.killCount;
 		if ((touchable() & TCH_CORPSE) == 0 && status[P_STRONG][1] == 0 && requiredKills > 0 && killCount >= requiredKills) {
 			status[P_STRONG][1] = getProc().BERSERK.mult;
 			anim.getEff(P_STRONG);
 		}
-		// adrenaline
+		// 体力低下による速度上昇
 		int adrenalineThreshold = getProc().SPEEDUP.health;
 		if (status[P_SPEEDUP][0] == 0 && (touchable() & TCH_CORPSE) == 0 && adrenalineThreshold > 0 && health * 100 <= maxH * adrenalineThreshold) {
 			status[P_SPEEDUP][0] = getProc().SPEEDUP.mult;
 			anim.getEff(P_SPEEDUP);
 		}
-		// lethal strike
+		// 生き残る
 		if (getProc().LETHAL.prob > 0 && health <= 0) {
 			if (status[P_LETHAL][0] == 0 && getProc().LETHAL.perform(basis.r)) {
 				health = 1;
@@ -2277,7 +2191,7 @@ public abstract class Entity extends AbEntity {
 		if ((getAbi() & AB_GLASS) > 0 && atkm.atkTime - 1 <= 0 && kbTime == 0 && atkm.attacksLeft == 0)
 			kill(KillMode.SELF_DESTRUCT);
 
-		// update ZKill
+		// ゾンビキラーの一時状態を更新する
 		zx.postUpdate();
 
 		if (isBase && health < 0) {
@@ -2302,8 +2216,8 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * Sets the animation that will be used for summon
-	 * @param conf The type of animation used
+	 * 召喚時の登場状態を設定し、必要なら召喚元とHP共有関係を結ぶ。
+	 * @param conf 登場演出の種別
 	 */
 	public void setSummon(int conf, Entity bond) {
 
@@ -2331,10 +2245,10 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * can be targeted by units that have traits in common with the entity they're attacking
-	 * @param t The attack's trait list
-	 * @param attacker The Entity attacking.
-	 * @param targetOnly Used if this function is called as part of a "Target Only" call
+	 * 攻撃側と共有属性または対象属性条件があるかを判定する。
+	 * @param t 攻撃側の属性一覧
+	 * @param attacker 攻撃元
+	 * @param targetOnly 対象限定判定として呼ぶ場合は真
 	 */
 	@Override
 	public boolean traitCompatible(List<Trait> t, Entity attacker, boolean targetOnly) {
@@ -2352,7 +2266,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * get touch mode bitmask
+	 * 死亡・復活・潜行・登場状態に対応する接触種別を返す。
 	 */
 	@Override
 	public int touchable() {
@@ -2372,7 +2286,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * Remove existing proc to this entity
+	 * 弱体・毒の内部トークンを破棄し、解除対象状態を終了直前へ進める。
 	 */
 	private void cancelAllProc() {
 		weaks.list.clear();
@@ -2388,7 +2302,7 @@ public abstract class Entity extends AbEntity {
 
 	private void regenerate() {
 		int amount = status[P_HPREGEN][2];
-		if (amount < 0 && !getProc().HPREGEN.noHB) { // I hope I did this right
+		if (amount < 0 && !getProc().HPREGEN.noHB) { // この扱いで正しいか未確認
 			damage -= amount;
 		} else {
 			health += amount;
@@ -2422,13 +2336,12 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * update the entity. order of update:
-	 *  1st iteration (movement) :   TBA  -> procs time tick -> move (KB, burrow, standard) -> revive
-	 *  2nd iteration (reactions):   validate walking OR go idle, start burrow, start attack -> update attack
+	 * 第1更新として、待機時間、能力時間、割り込み・潜行・通常移動、復活の順に進行する。
+	 * 第2更新は {@link #update2()} が接触反応と攻撃を処理する。
 	 */
 	@Override
 	public void update() {
-		// decrement TBA
+		// 攻撃待機時間を減らす
 		if (waitTime > 0)
 			waitTime--;
 
@@ -2449,19 +2362,17 @@ public abstract class Entity extends AbEntity {
 
 	@Override
 	public void update2() {
-		// short-circuit non-reacting exceptions
+		// 反応不能状態では演出と共有HP関係だけを更新する
 		if (kbTime != 0 || (isBase && health <= 0) || anim.anim.type == UType.ENTER || status[P_REVIVE][1] != 0) {
 			anim.update();
 			bondTree.update();
 			return;
 		}
 
-		// being frozen doesn't invalidate neither reactions nor walking readiness:
-		// entities still change animation while frozen based on collisions
-		// entities move in the same frame freeze proc ends
+		// 停止中も接触に応じて演出状態を変え、停止が切れたフレームから移動できる
 		boolean nstop = status[P_STOP][0] == 0;
 
-		// if not attacking check collisions, act accordingly
+		// 非攻撃中は接触状態から歩行・潜行・攻撃開始を選ぶ
 		if(atkm.atkTime == 0) {
 			if (checkTouch()) {
 				walking = false;
@@ -2487,7 +2398,6 @@ public abstract class Entity extends AbEntity {
 
 	@Override
 	public void updateAnimation() {
-		//update animation
 		anim.updateAnimation();
 	}
 
@@ -2516,25 +2426,25 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * determine the amount of damage received from this attack
+	 * 陣営固有の特性補正を適用した被ダメージを返す。
 	 */
 	protected abstract int getDamage(AttackAb atk, int ans);
 
 	/**
-	 * called when entity starts final hb, no revive, no lethal strike
+	 * 復活・生き残るがない最終死亡の確定時に呼ばれる。
 	 */
 	protected abstract void onLastBreathe();
 
 	/**
-	 * get max distance to go back
+	 * 後退可能な最大距離を返す。
 	 */
 	protected abstract float getLim();
 
 	protected abstract int traitType();
 
 	/**
-	 * move forward <br>
-	 * extmov: speedup combo extra distance
+	 * 状態速度と追加移動量を反映して前進する。
+	 * @param extmov コンボなどによる追加移動量
 	 */
 	protected void updateMove(float extmov) {
 		if (moved)
@@ -2576,7 +2486,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	private void drawAxis(FakeGraphics gra, P p, float siz) {
-		// after this is the drawing of hit boxes
+		// 以降は当たり判定のデバッグ描画
 		siz *= 1.25f;
 		float rat = BattleConst.ratio;
 		float poa = p.x - pos * rat * siz;
@@ -2608,7 +2518,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * get the extra proc time due to fruits, for EEnemy only
+	 * 敵が受ける妨害時間への果実補正を返す。
 	 */
 	private float getFruit(List<Trait> trait, int dire, int e) {
 		if (!receive(dire) || receive(e))
@@ -2619,7 +2529,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * called when last KB reached
+	 * 最終ノックバック後に復活可否を判定し、死亡を確定する。
 	 */
 	private void preKill() {
 		Soul s = Identifier.get(data.getDeathAnim());
@@ -2635,7 +2545,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * determines atk direction for procs and abilities
+	 * 能力補正の攻撃側・防御側判定を返す。
 	 */
 	private boolean receive(int dire) {
 		return traitType() != dire;
@@ -2649,7 +2559,7 @@ public abstract class Entity extends AbEntity {
 
 	private void updateBurrow() {
 		if (kbTime == -2) {
-			// burrow down
+			// 潜行開始
 			status[P_BURROW][2]--;
 			if (data.getGouge() != null && anim.anim.len() - status[P_BURROW][2] == data.getGouge().pre)
 				basis.getAttack(aam.getAttack(data.getAtkCount() + 2));
@@ -2660,7 +2570,7 @@ public abstract class Entity extends AbEntity {
 			}
 		}
 		if (kbTime == -3) {
-			// move underground
+			// 地中移動
 			float oripos = pos;
 			if (bdist < 0) {
 				status[P_BURROW][2] = anim.setAnim(UType.BURROW_UP, false) + 1;
@@ -2674,7 +2584,7 @@ public abstract class Entity extends AbEntity {
 			}
 		}
 		if (kbTime == -4) {
-			// burrow up
+			// 浮上
 			status[P_BURROW][2]--;
 			if (data.getResurface() != null && anim.anim.len() - status[P_BURROW][2] == data.getResurface().pre)
 				basis.getAttack(aam.getAttack(data.getAtkCount() + 3));
@@ -2685,7 +2595,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * update proc status
+	 * 時間制能力と内部トークンを1フレーム進める。
 	 */
 	private void updateProc() {
 		if (status[P_STOP][0] > 0)
@@ -2718,13 +2628,13 @@ public abstract class Entity extends AbEntity {
 			}
 			status[P_BSTHUNT][1]--;
 		}
-		// update tokens
+		// 複数同時適用される弱体・毒を更新する
 		weaks.update();
 		pois.update();
 	}
 
 	/**
-	 * get touch state
+	 * 死体攻撃能力を加味した接触対象ビット列を返す。
 	 */
 	public int getTouch() {
 		if ((getAbi() & AB_CKILL) > 0)
@@ -2733,7 +2643,7 @@ public abstract class Entity extends AbEntity {
 	}
 
 	/**
-	 * verify touch state
+	 * 接触範囲内の対象と対象限定条件を更新し、移動停止要否を返す。
 	 */
 	public boolean checkTouch() {
 		touch = true;

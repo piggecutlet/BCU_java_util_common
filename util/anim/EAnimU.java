@@ -6,6 +6,10 @@ import common.system.fake.FakeGraphics;
 import common.system.fake.FakeTransform;
 import common.util.anim.AnimU.UType;
 
+/**
+ * ユニット系アニメーションの実行時インスタンス。
+ * 通常のタイムライン描画に加え、編集画面では基準枠と選択部品の拡縮枠を重ねる。
+ */
 public class EAnimU extends EAnimD<AnimU.UType> {
 
 	protected EAnimU(AnimU<?> ani, UType i) {

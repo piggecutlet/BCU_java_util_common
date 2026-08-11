@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 波動・小波動・移動波動の1区間分の攻撃判定。
+ * 派生する全区間で既命中集合を共有し、同一系列の波が同じ実体へ重複命中するのを防ぐ。
+ */
 public class AttackWave extends AttackAb {
 
 	protected final Set<Entity> incl;

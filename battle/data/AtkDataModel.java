@@ -10,6 +10,10 @@ import common.pack.UserProfile;
 import common.system.BasedCopable;
 import common.util.Data;
 
+/**
+ * カスタムキャラクターの1回分の攻撃設定を保持し、通常攻撃・特殊攻撃の共通参照を提供する。
+ * 共有能力を使う構成では、代表攻撃 {@link CustomEntity#rep} の能力設定を返す。
+ */
 @JsonClass(read = RType.FILL, noTag = NoTag.LOAD)
 public class AtkDataModel extends Data implements MaskAtk, BasedCopable<AtkDataModel, CustomEntity> {
 
@@ -17,7 +21,7 @@ public class AtkDataModel extends Data implements MaskAtk, BasedCopable<AtkDataM
 	public final CustomEntity ce;
 	public String str = "";
 	public int atk, pre = 1, ld0, ld1, targ = TCH_N, count = -1, dire = 1, alt = 0, move = 0;
-	public boolean range = true, specialTrait = false; //Special trait makes attacks that ignore traits consider traits, and attacks that don't do
+	public boolean range = true, specialTrait = false; // 属性不一致時の能力適用先。true は敵、false は味方
 
 	@JsonField
 	public Proc proc;
@@ -149,7 +153,7 @@ public class AtkDataModel extends Data implements MaskAtk, BasedCopable<AtkDataM
 		return ld0 * ld1 < 0 || (ld0 == 0 && ld1 > 0) || (ld0 < 0 && ld1 == 0);
 	}
 
-	public void inject(PackData.UserPack pack) { // // TODO: atkdatamodel.onInject cannot reliably get userpack at this time; this is done so procs properly apply on ALL attacks
+	public void inject(PackData.UserPack pack) { // TODO: 現状は onInject から UserPack を確実に取得できないため、全攻撃への能力適用をここで補正する
 		if (UserProfile.isOlderPack(pack, "0.7.4.1") && proc.WARP.prob > 0)
 			proc.WARP.dis_1 = proc.WARP.dis_0;
 

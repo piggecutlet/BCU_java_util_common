@@ -4,6 +4,10 @@ import common.system.fake.FakeImage;
 
 import java.util.List;
 
+/**
+ * スプライト分割、部品階層、種別ごとのタイムラインを束ねるデータ駆動アニメーション資源。
+ * 画像は必要になるまで読み込まず、{@link #check()} を入口として派生型の {@link #load()} に委譲する。
+ */
 public abstract class AnimD<A extends AnimD<A, T>, T extends Enum<T> & AnimI.AnimType<A, T>> extends AnimI<A, T> {
 
 	public ImgCut imgcut;
@@ -71,6 +75,10 @@ public abstract class AnimD<A extends AnimD<A, T>, T extends Enum<T> & AnimI.Ani
 		return parts[i];
 	}
 
+	/**
+	 * モデル部品の旧インデックスから新インデックスへの対応を、親参照と全タイムラインの対象参照へ反映する。
+	 * 配列の範囲と全参照の整合性は呼び出し側の責務。
+	 */
 	public void reorderModel(int[] inds) {
 		for (int[] ints : mamodel.parts)
 			if (ints != null && ints[0] >= 0)
@@ -106,6 +114,10 @@ public abstract class AnimD<A extends AnimD<A, T>, T extends Enum<T> & AnimI.Ani
 		loaded = false;
 	}
 
+	/**
+	 * 読み込んだ各データを相互参照と照合し、範囲外参照や不正値を利用可能な値へ補正する。
+	 * 検査だけではなくモデルとタイムラインを破壊的に変更する。
+	 */
 	public void validate() {
 		check();
 		mamodel.check(this);

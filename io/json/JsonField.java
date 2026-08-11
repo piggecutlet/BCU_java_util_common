@@ -15,30 +15,19 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * ways to read from JSON: <br>
- * 1. default setting, use on fields, put {@code @JsonField}, ignore fields not
- * in JSON <br>
- * 2. customize IOType, to be used only when reading or writing, add parameter
- * {@code IOType} <br>
- * 3. use on methods, must have {@code IOType} {@code R} or {@code W} <br>
- * 4. {@code GenType} {@code FILL} mode, on {@code RType} {@code SET} or
- * {@code FILL} object field only, allows injection on pre-existing objects. Can
- * use on primitive arrays. Not applicable to Collections. <br>
- * 5. {@code GenType} {@code GEN} mode, use parameter {@code generator} to
- * specify function name, must be static function declared in this class<br>
- * <hr>
- * Forbidden pairs:
- * <li>Primitive - GenType.FILL</li>
- * <li>Primitive - GenType.GEN</li>
- * <li>Collection - GenType.FILL</li>
- * <li>Method - GenType.FILL</li>
- * <li>Method - IOType.RW</li>
- * <li>Type.FILL - GenType.SET</li>
- * <hr>
- * Suggestions:
- * <li>GenType.GEN with object field without using JsonObject can be replaced
- * with GenType.FILL to avoid unnecessary functions</li>
- * <li>use functional read and field write to pre-process inputs</li>
+ * BCUの反射ベースJSON変換で、対象メンバーと入出力方向、生成・別名・共有参照の規約を指定する。
+ * フィールドではタグ省略時にフィールド名を使うが、メソッドではタグと読み書き片方向の指定が必須。
+ * {@link GenType#FILL}は既存オブジェクトまたは配列へ注入し、コレクションには適用されない。
+ * {@link GenType#GEN}は1引数コンストラクター、または保持側の公開生成メソッドを使う。
+ * 次の組み合わせは使用できない。
+ * <ul>
+ * <li>プリミティブ型と{@link GenType#FILL}</li>
+ * <li>プリミティブ型と{@link GenType#GEN}</li>
+ * <li>コレクション型と{@link GenType#FILL}</li>
+ * <li>メソッドと{@link GenType#FILL}</li>
+ * <li>メソッドと{@link IOType#RW}</li>
+ * <li>{@link JsonClass.RType#FILL}と{@link GenType#SET}</li>
+ * </ul>
  */
 @Documented
 @Retention(RUNTIME)
@@ -49,6 +38,9 @@ public @interface JsonField {
 		SET, FILL, GEN
 	}
 
+	/**
+	 * 同じインスタンスを参照する配列・リスト要素をプール番号へ置き換え、JSON往復時の共有関係を保つ。
+	 */
 	@JsonClass
 	class Handler {
 
@@ -69,7 +61,7 @@ public @interface JsonField {
 			if (o == null)
 				return -1;
 			for (int i = 0; i < list.size(); i++)
-				if (list.get(i) == o) // hard comparison
+				if (list.get(i) == o) // 同一インスタンスとして比較
 					return i;
 			list.add(o);
 			return list.size() - 1;
@@ -154,22 +146,22 @@ public @interface JsonField {
 	boolean block() default false;
 
 	/**
-	 * Generation Type for this Field. Default is SET, which means to set the value.
-	 * FILL requires a default value and must be used on object fields. GEN uses
-	 * generator function. Functional Fields must use SET.
+	 * フィールド値の生成方法。{@link GenType#SET}は復号値を代入し、
+	 * {@link GenType#FILL}は既存値へ注入し、{@link GenType#GEN}は生成メソッドを使う。
+	 * メソッドに付ける場合は{@link GenType#SET}のみ。
 	 */
 	GenType gen() default GenType.SET;
 
 	/**
-	 * ignored when GenType is not GEN, must refer to a static method declared in
-	 * this class with parameter of this type and {@code JsonObject}. second
-	 * parameter can be unused, as it will also be injected
+	 * {@link GenType#GEN}で呼び出す、保持側クラスの公開メソッド名。
+	 * 引数は{@code Class}と{@code JsonElement}であり、それ以外の生成方式では使われない。
+	 * 省略時は、保持側の型を1引数に取るコンストラクターを探索する。
 	 */
 	String generator() default "";
 
 	/**
-	 * 1. used for generic data structures. Currently supports List, Set, and Map.
-	 * Note: the field declaration must be instantiatable
+	 * {@link List}、{@link java.util.Set}、{@link java.util.Map}の要素型。
+	 * 復号時は宣言されたコレクション型自体も生成可能である必要がある。
 	 */
 	Class<?>[] generic() default {};
 
@@ -180,8 +172,7 @@ public @interface JsonField {
 	String serializer() default "";
 
 	/**
-	 * tag name for this field, use the field name if not specified. Must be
-	 * specified for functions
+	 * JSON上のタグ名。フィールドでは省略時にフィールド名、メソッドでは指定必須。
 	 */
 	String tag() default "";
 

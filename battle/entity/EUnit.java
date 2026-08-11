@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 戦闘中の味方ユニット実体。
+ * レベル・コンボ・本能玉補正を初期化し、被ダメージ集計、再生産遅延、撃破時還元など味方固有の副作用を反映する。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class EUnit extends Entity {
 
@@ -34,7 +38,6 @@ public class EUnit extends Entity {
 			}
 
 			if (atk.origin.model instanceof AtkModelUnit) {
-				// Warning : Eunit.e became public now
 				return getEUnit(atk).getOrbAtk(en.traits, atk.matk);
 			}
 
@@ -192,7 +195,7 @@ public class EUnit extends Entity {
 	}
 
 	@Override
-	public int getAtk() { // visual only
+	public int getAtk() { // 表示用
 		int atk = aam.getAtk();
 		if (status[P_STRONG][0] != 0 && !StageLimit.isComboBanned(basis.est.lim, C_STRONG))
 			atk += atk * (status[P_STRONG][0] + basis.b.getInc(C_STRONG, ((MaskUnit) data).getPack().unit)) / 100;
@@ -306,8 +309,8 @@ public class EUnit extends Entity {
 				ans = (int) (ans * atk.getProc().MINIVOLC.mult / 100f);
 
 		if (atk.model instanceof AtkModelEnemy && status[P_CURSE][0] == 0) {
-			List<Trait> sharedTraits = new ArrayList<>(atk.trait); // get traits of enemy
-			sharedTraits.retainAll(traits); // keep
+			List<Trait> sharedTraits = new ArrayList<>(atk.trait); // 攻撃側と共有する属性だけを残す
+			sharedTraits.retainAll(traits);
 			boolean isAntiTraited = Trait.isTargetTraited(atk.trait);
 			for (Trait t : traits) {
 				if (t.id.pack.equals("000000") || sharedTraits.contains(t))
@@ -355,7 +358,7 @@ public class EUnit extends Entity {
 		if (atk.trait.contains(UserProfile.getBCData().traits.get(TRAIT_VILLAIN)) && (getAbi() & AB_VKILL) > 0)
 			ans = (int) (ans * VILLAIN_KILLER_RESIST);
 
-		// Perform orb
+		// 本能玉の軽減を適用する
 		ans = getOrbRes(atk.trait, ans);
 
 		if(basis.canon.base > 0) {

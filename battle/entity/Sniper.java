@@ -16,6 +16,10 @@ import common.util.unit.Trait;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * スニャイパーの標的選択、照準角、発射待機、弾道と命中を進行する。
+ * リプレイ時も同じ照準計算を再現できるよう、表示座標は {@link BattleField} から取得する。
+ */
 public class Sniper extends AtkModelAb {
 
 	private final EAnimD<?> anim = effas().A_SNIPER.getEAnim(SniperEff.IDLE);
@@ -24,7 +28,7 @@ public class Sniper extends AtkModelAb {
 	private Entity target;
 	public boolean enabled = true;
 	public double pos, layer, height, bulletX, targetAngle = 0, cannonAngle = 0, bulletAngle = 0;
-	public final BattleField bf; //Used for replay pos/siz gathering
+	public final BattleField bf; // リプレイ用の表示位置・倍率取得元
 
 	public Sniper(StageBasis sb, BattleField bf) {
 		super(sb);
@@ -32,7 +36,7 @@ public class Sniper extends AtkModelAb {
 	}
 
 	/**
-	 * base part of animation
+	 * 本体部分のアニメーションを描画する。
 	 */
 	public void drawBase(FakeGraphics gra, P ori, float siz) {
 		height = ori.y;
@@ -120,7 +124,7 @@ public class Sniper extends AtkModelAb {
 			}
 		}
 
-		// find enemy pos
+		// 最前線の敵を標的にする
 		if(preTime == 0) {
 			pos = -1;
 
@@ -139,7 +143,7 @@ public class Sniper extends AtkModelAb {
 		if (preTime > 0) {
 			preTime--;
 			if (preTime == 0) {
-				//fire bullet
+				// 弾を発射する
 				bulletX = b.ubase.pos + SNIPER_POS + 375 * Math.cos(Math.toRadians((int) bulletAngle));
 
 				atka.ent[6].alter(12, 1000);

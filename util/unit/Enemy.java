@@ -31,6 +31,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * 敵キャラの能力値、攻撃、属性、アニメーションをパック内識別子へ対応付ける定義。
+ * 体力・攻撃倍率や位置などの戦闘中状態は{@link EEnemy}生成時に渡し、この定義自体には保持しない。
+ */
 @JsonClass.JCGeneric(Identifier.class)
 @JsonClass
 public class Enemy extends Animable<AnimU<?>, UType> implements AbEnemy {
@@ -119,6 +123,9 @@ public class Enemy extends Animable<AnimU<?>, UType> implements AbEnemy {
 		return anim.getEAnim(t);
 	}
 
+	/**
+	 * ステージ倍率へ敵定義固有の倍率を重ね、1体分の実行時エンティティを生成する。
+	 */
 	@Override
 	public EEnemy getEntity(StageBasis b, Object obj, float hpMagnif, float atkMagnif, int d0, int d1, int m, int l) {
 		hpMagnif *= de.multi(b.b);
@@ -172,11 +179,11 @@ public class Enemy extends Animable<AnimU<?>, UType> implements AbEnemy {
 			if (UserProfile.isOlderPack(pack, "0.6.0.0")) {
 				proc.BARRIER.health = enemy.shield;
 				enemy.traits = Trait.bitmaskToTrait(enemy.type);
-				if ((enemy.abi & (1 << 18)) != 0) //Seal Immunity
+				if ((enemy.abi & (1 << 18)) != 0) // 封印無効
 					proc.IMUSEAL.mult = 100;
-				if ((enemy.abi & (1 << 7)) != 0) //Moving atk Immunity
+				if ((enemy.abi & (1 << 7)) != 0) // 移動攻撃無効
 					proc.IMUMOVING.mult = 100;
-				if ((enemy.abi & (1 << 12)) != 0) //Poison Immunity
+				if ((enemy.abi & (1 << 12)) != 0) // 毒撃無効
 					proc.IMUPOI.mult = 100;
 				enemy.abi = Data.reorderAbi(enemy.abi, 0);
 			}
@@ -194,7 +201,7 @@ public class Enemy extends Animable<AnimU<?>, UType> implements AbEnemy {
 			}
 
 			if (UserProfile.isOlderPack(pack, "0.6.5.0")) {
-				if ((enemy.abi & 32) > 0) //base destroyer
+				if ((enemy.abi & 32) > 0) // 城破壊
 					proc.ATKBASE.mult = 300;
 				enemy.abi = Data.reorderAbi(enemy.abi, 1);
 			}

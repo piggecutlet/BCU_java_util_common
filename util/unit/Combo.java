@@ -18,6 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * 発動に必要な形態列と、効果種別・段階をパック内識別子へ対応付けるにゃんコンボ定義。
+ * キャラグループ指定がある場合は、候補ユニットに対する包含・除外条件として併用する。
+ */
 @IndexContainer.IndexCont(PackData.class)
 @JsonClass.JCGeneric(Identifier.class)
 @JsonClass
@@ -197,9 +201,9 @@ public class Combo extends Data implements IndexContainer.Indexable<IndexContain
     public boolean checkCharaGroup(Unit u) {
         if (group == null)
             return true;
-        else if (group.type == 0) // includes
+        else if (group.type == 0) // 包含
             return group.set.contains(u);
-        else if (group.type == 2) // excludes
+        else if (group.type == 2) // 除外
             return !group.set.contains(u);
         else
             return true;

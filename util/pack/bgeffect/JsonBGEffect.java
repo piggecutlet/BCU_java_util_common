@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * bgNNN.json を BGEffectSegment 群へ展開し、各ハンドラーの初期化・更新・描画を束ねる背景効果。
+ * JSON が別 ID を参照する形式では初回読み込みで postNeed を立て、全効果登録後の再構築時に参照先ハンドラーを共有する。
+ */
 public class JsonBGEffect extends BackgroundEffect {
     protected final int id;
     private final List<BGEffectHandler> handlers = new ArrayList<>();

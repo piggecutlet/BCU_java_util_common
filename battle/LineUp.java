@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+/**
+ * 2行5枠の形態配置と、ユニット単位のレベル・本能・本能玉設定を保持する。
+ * {@link #renew()} は無効枠の除去後、戦闘用形態と成立コンボを再構築して各配列の整合を保つ。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 @JsonClass
 public class LineUp extends Data {
@@ -34,14 +38,14 @@ public class LineUp extends Data {
 	private boolean updating = false;
 
 	/**
-	 * new LineUp object
+	 * 空の編成を生成する。
 	 */
 	protected LineUp() {
 		renew();
 	}
 
 	/**
-	 * clone a LineUp object
+	 * 形態配置とレベル設定を複製する。
 	 */
 	protected LineUp(LineUp ref) {
 		for (int i = 0; i < 2; i++)
@@ -55,7 +59,7 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * shift all cats to lowest index possible
+	 * 空き枠を詰め、全形態を小さい1次元添字側へ移動する。
 	 */
 	public void arrange() {
 		for (int i = 0; i < 10; i++)
@@ -70,7 +74,7 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * test whether contains certain combo
+	 * 指定コンボが現在の成立一覧にあるかを返す。
 	 */
 	public boolean contains(Combo c) {
 		for (Combo com : coms)
@@ -80,7 +84,7 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * get level of an Unit, if no date recorded, record default one
+	 * 形態のレベル設定を返し、未登録なら既定値を登録する。
 	 */
 	public synchronized Level getLv(Form f) {
 		if (!map.containsKey(f.unit.id))
@@ -90,7 +94,7 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * return how much space from 1st row a combo will need to put in this lineup
+	 * 指定コンボを成立させるために1行目へ追加が必要な枠数を返す。
 	 */
 	public int occupance(Combo c) {
 		Form[] com = c.forms;
@@ -114,14 +118,14 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * apply a combo
+	 * 既存コンボを必要に応じて外し、指定コンボを成立させる形態を1行目へ配置する。
 	 */
 	public void set(Form[] com) {
-		// if a unit in the lineup is present in the combo
+		// 編成中の各枠が指定コンボに含まれるか
 		boolean[] rep = new boolean[5];
-		// if a unit in the combo is already present in the lineup
+		// 指定コンボの各ユニットが編成済みか
 		boolean[] exi = new boolean[com.length];
-		// the number of units required to inject
+		// 追加が必要なユニット数
 		int rem = com.length;
 		for (int i = 0; i < com.length; i++)
 			for (int j = 0; j < 5; j++) {
@@ -138,14 +142,14 @@ public class LineUp extends Data {
 					rem--;
 				}
 			}
-		// number of units not present in any combo
+		// 既存コンボに使われていない枠数
 		int free = 0;
 		for (int i = 0; i < 5; i++)
 			if (loc[i] == 0)
 				free++;
 
 		if (free < rem) {
-			// required to remove some combo
+			// 空きが足りるまで既存コンボを外す
 
 			int del = rem - free;
 			while (del > 0) {
@@ -198,7 +202,7 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * set level record of an Unit
+	 * ユニットのレベル設定を更新し、必要なら戦闘用形態を再構築する。
 	 */
 	public synchronized void setLv(Unit u, Level lv) {
 		boolean sub = updating;
@@ -221,10 +225,10 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * set orb data of an Unit
+	 * ユニットの本能玉設定を更新し、必要なら戦闘用形態を再構築する。
 	 */
 	public synchronized void setOrb(Unit u, Level lv, int[][] orbs) {
-		// lvs must be generated before doing something with orbs
+		// 本能玉設定より先にレベル設定を用意する
 		boolean sub = updating;
 		updating = true;
 
@@ -246,7 +250,7 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * return whether implementing this combo will replace other combo
+	 * 指定コンボの配置に既存コンボの解除が必要かを返す。
 	 */
 	public boolean willRem(Combo c) {
 		int free = 0;
@@ -271,21 +275,21 @@ public class LineUp extends Data {
 	}
 
 	/**
-	 * set slot using 1 dim index
+	 * 0から9の添字を2行5枠へ変換して設定する。
 	 */
 	protected void setFS(Form f, int i) {
 		fs[i / 5][i % 5] = f;
 	}
 
 	/**
-	 * get Form from 1 dim index
+	 * 0から9の添字を2行5枠へ変換して取得する。
 	 */
 	private Form getFS(int i) {
 		return fs[i / 5][i % 5];
 	}
 
 	/**
-	 * check combo information
+	 * 1行目から成立コンボと各枠の使用数を再計算する。
 	 */
 	private void renewCombo() {
 		List<Combo> tcom = new ArrayList<>();

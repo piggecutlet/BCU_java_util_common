@@ -9,6 +9,10 @@ import common.util.anim.EAnimD;
 
 import java.util.Set;
 
+/**
+ * 連鎖する波動コンテナの共通状態を保持する。
+ * 同じ連鎖のコンテナ集合を共有し、波動無効時は集合全体を停止する。
+ */
 public abstract class ContWaveAb extends ContAb {
 
 	protected final AttackWave atk;
@@ -39,7 +43,7 @@ public abstract class ContWaveAb extends ContAb {
 	}
 
 	/**
-	 * kill every related wave
+	 * 同じ連鎖に属する全波動を停止する。
 	 */
 	protected void deactivate() {
 		waves.forEach(w -> w.activate = false);
@@ -49,7 +53,7 @@ public abstract class ContWaveAb extends ContAb {
 		if (!CommonStatic.getConfig().ref)
 			return;
 
-		// after this is the drawing of hit boxes
+		// 以降は当たり判定のデバッグ描画
 		siz *= 1.25;
 		float rat = BattleConst.ratio;
 		int h = (int) (640 * rat * siz);
@@ -66,7 +70,7 @@ public abstract class ContWaveAb extends ContAb {
 	}
 
 	/**
-	 * generate the next wave container
+	 * 次の波動区間を生成する。
 	 */
 	protected abstract void nextWave();
 

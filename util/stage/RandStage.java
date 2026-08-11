@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * 公式のランダムダンジョン定義から編成またはステージを抽選するユーティリティ。
+ * 抽選結果そのものや戦闘中の進行状態は保持しない。
+ */
 public class RandStage {
 
 	public static BasisLU getLU(int att) {

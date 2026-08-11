@@ -3,6 +3,10 @@ package common.system;
 import common.system.fake.FakeGraphics;
 import common.system.fake.FakeImage;
 
+/**
+ * 複数画像を横一列に並べ、指定点を基準に拡大縮小して描画する座標ヘルパー。
+ * {@link #type}のビット0は右端基準、ビット1は下端基準を表す。
+ */
 public class SymCoord {
 
 	public FakeGraphics g;
@@ -20,6 +24,10 @@ public class SymCoord {
 		type = t;
 	}
 
+	/**
+	 * 画像列を描画し、拡大後の全体サイズを返す。
+	 * 戻り値はインスタンス内で再利用されるため、次の呼び出し後も保持する場合はコピーが必要。
+	 */
 	public P draw(FakeImage... fis) {
 		setSize(0, 0);
 		for (FakeImage f : fis) {

@@ -18,6 +18,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+/**
+ * 特殊効果データのフィールド編集と値補正を、表示側から独立した共通モデルとして管理する。
+ */
 public class Editors {
 
 	private static final Map<String, EditorGroup> eg = new HashMap<>();

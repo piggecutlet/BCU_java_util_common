@@ -6,12 +6,24 @@ import common.system.fake.FakeImage;
 
 import java.util.List;
 
+/**
+ * ユニット、敵、魂で共通する規約化されたアニメーション資源。
+ * {@link ImageKeeper} に実データの取得を委譲し、モデルとタイムラインだけの部分読込と、
+ * スプライト分割まで行う完全読込を分離する。
+ */
 public abstract class AnimU<T extends AnimU.ImageKeeper> extends AnimD<AnimU<?>, AnimU.UType> {
 
+	/**
+	 * 編集時にアニメーション種別ごとの回転再生可否を公開する。
+	 */
 	public interface EditableType {
 		boolean rotate();
 	}
 
+	/**
+	 * 画像、モデル、タイムラインの取得元を抽象化するローダー契約。
+	 * 実装は再取得可能なキャッシュの破棄と、用途別の必須ファイル検証も担う。
+	 */
 	public interface ImageKeeper {
 		enum AnimationType {
 			SOUL,

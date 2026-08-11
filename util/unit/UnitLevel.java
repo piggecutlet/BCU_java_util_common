@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 10レベル区間ごとの成長率を20区間分保持する成長曲線定義。
+ * 識別子を共有する複数ユニットから参照され、個々の現在レベルは保持しない。
+ */
 @JsonClass
 @JsonClass.JCGeneric(Identifier.class)
 @IndexCont(PackData.class)
@@ -63,6 +67,9 @@ public class UnitLevel implements Indexable<PackData, UnitLevel> {
 		return id;
 	}
 
+	/**
+	 * レベル1を1倍として、完了した10レベル区間と端数レベルの成長率を累積する。
+	 */
 	public float getMult(int lv) {
 		int dec = lv;
 		float d = 1f - lvs[0] * 0.01f;

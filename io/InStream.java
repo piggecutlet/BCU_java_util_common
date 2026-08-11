@@ -7,6 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * BCU独自バイナリ形式を順次読み取る入力契約。
+ * 通常形式の配列長は1バイトであり、{@link InStreamAnim}だけが4バイト長へ差し替える。
+ */
 public interface InStream {
 
 	static InStream getIns(File f) {
@@ -81,6 +85,10 @@ public interface InStream {
 	}
 }
 
+/**
+ * 共有配列の範囲をビューとして読み取る通常形式の入力ストリーム。
+ * サブストリームはデータを複製せず、親のカーソルだけを宣言長分進める。
+ */
 class InStreamDef extends DataIO implements InStream {
 
 	private final int[] bs;
@@ -208,6 +216,10 @@ class InStreamDef extends DataIO implements InStream {
 
 }
 
+/**
+ * 配列と文字列の長さを4バイトとして解釈するアニメーション互換入力。
+ * プリミティブ値のエンディアンとサブストリーム形式は通常形式と共通。
+ */
 class InStreamAnim extends DataIO implements InStream {
 
 	private final int[] bs;

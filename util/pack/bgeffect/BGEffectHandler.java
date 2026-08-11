@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 一つの BGEffectSegment から複数の描画要素を生成し、位置・速度・寿命・再生成を並列配列で管理する。
+ * 各状態配列の同じ添字は同一要素を表し、segment の設定がない状態配列は null のまま保持される。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class BGEffectHandler {
     protected static final P origin = new P(0, 0);
@@ -30,14 +34,14 @@ public class BGEffectHandler {
     protected P[] size;
     protected int[] opacity;
     /**
-     * false if behind, true if front
+     * false はエンティティより後ろ、true は前。
      */
     private boolean[] zOrder;
 
-    //this will be null if moveAngle and v aren't null
+    // moveAngle と v を使う極座標形式では null
     private P[] velocity;
 
-    //below two will be null if moveAngle and v are null
+    // 直交速度 velocity を使う場合は以下の2配列が null
     private int[] v;
     private float[] moveAngle;
 
@@ -499,10 +503,10 @@ public class BGEffectHandler {
     }
 
     /**
-     * Convert battle unit to pixel unit
-     * @param p Position in battle
-     * @param siz Size of battle
-     * @return Converted pixel
+     * 戦闘座標を描画ピクセルへ変換する。
+     * @param p 戦闘座標
+     * @param siz 戦闘画面の拡大率
+     * @return 変換後のピクセル値
      */
     private int convertP(float p, float siz) {
         return (int) (p * BattleRange.battleRatio * siz);

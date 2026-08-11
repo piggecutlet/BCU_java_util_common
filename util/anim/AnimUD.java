@@ -10,6 +10,10 @@ import common.system.files.VFile;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Battle Cats本体のファイル命名規則から直接読み込む標準アニメーション資源。
+ * 単体、通常4種、登場を含む5種、ゾンビ動作を含む7種をファイルの存在から判定する。
+ */
 public class AnimUD extends AnimU<AnimUD.DefImgLoader> {
 
 	private final String name;
@@ -24,6 +28,9 @@ public class AnimUD extends AnimU<AnimUD.DefImgLoader> {
 		return loader.collectInvalidAnimation(type);
 	}
 
+	/**
+	 * 仮想ファイルシステム上の標準ファイル群を遅延取得し、画像だけをキャッシュするローダー。
+	 */
 	static class DefImgLoader implements AnimU.ImageKeeper {
 
 		private final String spath;
@@ -130,13 +137,13 @@ public class AnimUD extends AnimU<AnimUD.DefImgLoader> {
 
 		@Override
 		public boolean validate(AnimationType type) {
-			// This is for BC animations, if validate is false, just let program crash rather
+			// 本体アニメーションは事前検証せず、不足があれば通常の読込失敗として扱う。
 			return true;
 		}
 
 		@Override
 		public List<String> collectInvalidAnimation(AnimationType type) {
-			// This is for BC animations, if it contains invalid animation, just let program crash rather
+			// 本体アニメーションでは不足ファイル一覧を収集しない。
 			return new ArrayList<>();
 		}
 
@@ -144,7 +151,7 @@ public class AnimUD extends AnimU<AnimUD.DefImgLoader> {
 			int end = 0;
 
 			for (int i = 0; i < original.length; i++) {
-				// walk/attack/wait/hb must be kept no matter what
+				// 先頭4種は内容が空でも必ず残す。
 				if ((original[i] != null && original[i].n != 0) || i < 4)
 					end = i;
 			}

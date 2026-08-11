@@ -5,6 +5,9 @@ import common.pack.IndexContainer;
 import common.pack.PackData;
 import common.util.anim.AnimU;
 
+/**
+ * 既定パックに属する悪魔魂アニメーションを、整数 ID で識別可能にする。
+ */
 @IndexContainer.IndexCont(PackData.class)
 public class DemonSoul extends AbSoul implements IndexContainer.Indexable<PackData, DemonSoul> {
 

@@ -10,19 +10,27 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 
+/**
+ * ディレクトリ階層とファイルデータを同じツリーで扱う仮想ファイルノード。
+ * ディレクトリは子ノード表を持ち、データファイルは子ノード表を持たない。
+ */
 public class VFile implements Comparable<VFile> {
 
+	/**
+	 * 標準素材ツリーからパスを検索する。
+	 * 初回検索時にツリーが空なら素材全体を読み込み直して一度だけ再検索する。
+	 */
 	public static VFile get(String str) {
 		VFile trial = getBCFileTree().find(str);
 
 		if (trial == null && getBCFileTree().list().isEmpty()) {
-			//Are we sure? Let's just re-load whole path
+			// 初期読み込み前の可能性があるため、素材全体を読み込み直す
 			AssetLoader.load(p -> {});
 		} else {
 			return trial;
 		}
 
-		//Once reload is done, try to get path again
+		// 再読み込み後に同じパスを再検索する
 		return getBCFileTree().find(str);
 	}
 
@@ -73,7 +81,7 @@ public class VFile implements Comparable<VFile> {
 	public int mark;
 
 	/**
-	 * constructor for directory
+	 * ディレクトリノードを作成する。
 	 */
 	public VFile(VFile par, String str) {
 		parent = par;
@@ -85,7 +93,7 @@ public class VFile implements Comparable<VFile> {
 	}
 
 	/**
-	 * constructor for data file
+	 * データファイルノードを作成する。
 	 */
 	public VFile(VFile par, String str, FileData fd) {
 		parent = par;
@@ -97,7 +105,7 @@ public class VFile implements Comparable<VFile> {
 	}
 
 	/**
-	 * constructor for root directory
+	 * ルートディレクトリを作成する。
 	 */
 	protected VFile(String str) {
 		this(null, str);
@@ -146,6 +154,10 @@ public class VFile implements Comparable<VFile> {
 		return subs == null ? null : subs.values();
 	}
 
+	/**
+	 * 別のディレクトリツリーをこのノードへ統合する。
+	 * 同名ディレクトリは再帰的に統合し、同名ファイルは統合元のノードで置き換える。
+	 */
 	public void merge(VFile f) throws Exception {
 		if (subs == null || f.subs == null)
 			throw new Exception("merge can only happen for folders");

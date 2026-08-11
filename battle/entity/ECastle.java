@@ -14,6 +14,10 @@ import common.util.unit.Trait;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 味方城または通常の敵城の耐久と被弾演出を管理する。
+ * 敵城のボスガード中はダメージを拒否し、解除演出はステージ側から指示される。
+ */
 public class ECastle extends AbEntity {
 
 	private final StageBasis sb;
@@ -27,7 +31,7 @@ public class ECastle extends AbEntity {
 
 	public ECastle(StageBasis b) {
 		super(b.st.trail ? Integer.MAX_VALUE
-				: b.st.getCont().getCont().getSID().equals("000003") ? b.st.health * (b.est.star + 1) // might be bodged but EoC is the only sm with stars
+				: b.st.getCont().getCont().getSID().equals("000003") ? b.st.health * (b.est.star + 1) // 暫定的な可能性あり。星付きのストーリーマップは日本編のみ
 				: b.st.health);
 		sb = b;
 		isEnemy = true;
@@ -128,7 +132,6 @@ public class ECastle extends AbEntity {
 
 	@Override
 	public void updateAnimation() {
-		//Do nothing
 		if(smoke != null) {
 			if(smoke.done()) {
 				smoke = null;

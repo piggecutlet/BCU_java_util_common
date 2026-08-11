@@ -4,6 +4,10 @@ import common.util.Data;
 
 import java.util.Map;
 
+/**
+ * にゃんこ砲・土台・装飾のレベル別補正を区分線形で補間する。
+ * 入力レベルを定義済み最大値へ制限し、部品種別ごとの単位へ変換して返す。
+ */
 public class CannonLevelCurve extends Data {
     public enum PART {
         CANNON,
@@ -56,7 +60,7 @@ public class CannonLevelCurve extends Data {
 
         int[][] curve = curveMap.get(type);
 
-        // clip level between 0 and max allowed
+        // レベルを0から定義済み最大値の範囲に収める
         level = Math.max(0, Math.min(level, curve[curve.length - 1][0]));
 
         int i = 0;

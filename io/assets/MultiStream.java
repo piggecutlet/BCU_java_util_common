@@ -7,8 +7,15 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 同一ファイルに対する複数の論理読取位置を、独立ストリームまたは共有{@link RandomAccessFile}で提供する。
+ * 共有モードは位置キャッシュを使う同期化されていない実装で、論理サブストリームのcloseは共有ハンドルを閉じない。
+ */
 public class MultiStream {
 
+	/**
+	 * 指定範囲への読取りと終了だけを公開する、パック復号用の最小ストリーム契約。
+	 */
 	public interface ByteStream {
 
 		void close() throws IOException;
@@ -17,6 +24,9 @@ public class MultiStream {
 
 	}
 
+	/**
+	 * 呼び出しごとに独立した{@link FileInputStream}を所有する実装。
+	 */
 	public static class TrueStream implements ByteStream {
 
 		private final FileInputStream fis;
@@ -46,6 +56,9 @@ public class MultiStream {
 
 	}
 
+	/**
+	 * 共有ファイルハンドル上に独自の論理位置だけを持つビュー。
+	 */
 	private class SubStream implements ByteStream {
 
 		private int pos;

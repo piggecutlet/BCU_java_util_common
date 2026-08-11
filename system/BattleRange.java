@@ -7,12 +7,21 @@ import common.util.pack.bgeffect.BackgroundEffect;
 import javax.annotation.Nullable;
 import java.util.Random;
 
+/**
+ * 背景エフェクトの数値範囲を、画面端・時間・アニメーション長などの基準から実座標やフレームへ解決する。
+ * 両端が異なる場合は第1境界を含み、第2境界を含まない範囲から無作為に値を返す。
+ *
+ * @param <T> 範囲端の数値型
+ */
 public class BattleRange<T extends Number> {
     public static final float battleRatio = 0.2f;
     public static final float battleHeightOffset = 1020f / battleRatio;
     public static final float battleOffset = 400f / battleRatio;
     private final Random r = new Random();
 
+    /**
+     * 範囲端を解決するときの基準。最小側と最大側には同じ種類の基準だけを組み合わせられる。
+     */
     public enum SNAP {
         LEFT,
         RIGHT,

@@ -10,6 +10,10 @@ import common.system.VImg;
 
 import java.util.Set;
 
+/**
+ * 固定敵とランダム敵集合を、ステージ編成から同じ識別子で参照するための契約。
+ * 実体生成時には倍率と出現レイヤーを受け取り、候補列挙時には最終的な固定敵集合へ展開する。
+ */
 @IndexCont(PackData.class)
 public interface AbEnemy extends Comparable<AbEnemy>, Indexable<PackData, AbEnemy> {
 

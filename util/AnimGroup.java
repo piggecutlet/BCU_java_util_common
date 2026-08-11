@@ -12,7 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
+/**
+ * ワークスペースのカスタムアニメーションをグループ分けし、その割り当てを読み書きする。
+ * 空文字のグループ名は未分類グループとして扱われる。
+ */
 public class AnimGroup {
+    /** 全画面で共有され、animGroup.json との入出力対象になるグループ。 */
     public static final AnimGroup workspaceGroup = new AnimGroup();
 
     public static void readGroupData() {

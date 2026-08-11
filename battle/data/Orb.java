@@ -19,10 +19,14 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+/**
+ * 本能玉の対象属性・等級一覧と、ユニットごとの装着枠制限を読み込む。
+ * 個々のインスタンスは装着可能になる最低形態と最低レベルだけを保持する。
+ */
 @JsonClass
 public class Orb extends Data {
 
-	public static final int[] orbTrait = { // the 12 connects to the "ability orb" sprite (since no targets)
+	public static final int[] orbTrait = { // 12は対象属性を持たない能力玉の画像に対応する
 			Data.TRAIT_RED, Data.TRAIT_FLOAT, Data.TRAIT_BLACK, Data.TRAIT_METAL, Data.TRAIT_ANGEL, Data.TRAIT_ALIEN,
 			Data.TRAIT_ZOMBIE, Data.TRAIT_RELIC, Data.TRAIT_WHITE, Data.TRAIT_EVA, Data.TRAIT_WITCH, Data.TRAIT_DEMON, 12
 	};
@@ -65,9 +69,9 @@ public class Orb extends Data {
 
 				JSONObject obj = (JSONObject) lists.get(i);
 
-				int orbID = obj.getInt("content"); // main orb type
-				int grade = obj.getInt("gradeID"); // grade type D to S
-				int trait = obj.has("attribute") ? obj.getInt("attribute") : 12; // trait target
+				int orbID = obj.getInt("content"); // 本能玉種別
+				int grade = obj.getInt("gradeID"); // DからSまでの等級
+				int trait = obj.has("attribute") ? obj.getInt("attribute") : 12; // 対象属性
 
 				Map<Integer, List<Integer>> orbData;
 
@@ -171,7 +175,7 @@ public class Orb extends Data {
 
 	}
 
-	public Orb(int minimumForm, int minimumLv) { // used for data
+	public Orb(int minimumForm, int minimumLv) { // 読み込みデータ用
 		minForm = minimumForm;
 		minLv = minimumLv;
 	}

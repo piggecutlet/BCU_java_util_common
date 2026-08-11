@@ -18,11 +18,19 @@ import common.util.stage.info.DefStageInfo;
 import java.util.ArrayList;
 import java.util.Queue;
 
+/**
+ * コレクション内のステージ定義と星倍率、マップ共通設定を束ねる定義。
+ * 識別子は「コレクションSID/固定インデックス」で表し、戦闘中の状態は保持しない。
+ */
 @IndexContainer.IndexCont(MapColc.class)
 @JsonClass
 public class StageMap extends Data implements BasedCopable<StageMap, MapColc>,
 		IndexContainer.Indexable<MapColc, StageMap>, IndexContainer.SingleIC<Stage> {
 
+	/**
+	 * 公式マップファイルから読み込む報酬・解放条件などの付帯定義。
+	 * 各ステージの{@link DefStageInfo}を構築する際に入力行を順番に消費する。
+	 */
 	public static class StageMapInfo {
 
 		public final StageMap sm;

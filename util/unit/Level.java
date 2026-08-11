@@ -12,6 +12,10 @@ import java.util.Arrays;
 
 import static common.util.Data.ORB_INTS;
 
+/**
+ * 1キャラ分の基本レベル、プラス値、本能レベル、装着オーブを保持する値。
+ * ユニット定義の上限適用は自動ではなく、生成処理または{@link Form#regulateLv(Level, Level)}が担う。
+ */
 @SuppressWarnings("unused")
 @JsonClass(noTag = NoTag.LOAD)
 public class Level implements BattleStatic, LevelInterface, Cloneable {
@@ -30,6 +34,10 @@ public class Level implements BattleStatic, LevelInterface, Cloneable {
 		return ans;
 	}
 
+	/**
+	 * 配列からユニット用レベルを生成し、基本・プラス値だけをユニット上限内へ収める。
+	 * 本能配列長は全形態中で最大の本能定義に合わせる。
+	 */
 	public static Level lvList(Unit u, int[] arr, int[][] orbs) {
 		int talentNumber = 0;
 		PCoin coin = null;
@@ -195,6 +203,9 @@ public class Level implements BattleStatic, LevelInterface, Cloneable {
 		}
 	}
 
+	/**
+	 * ユニットのオーブスロット数に合わせて配列長だけを補正し、既存スロットを可能な限り保持する。
+	 */
 	public void revalidateOrb(Unit u) {
 		int slotCount = u.orbs.size();
 		if (orbs != null && slotCount != orbs.length) {

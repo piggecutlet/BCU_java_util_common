@@ -11,6 +11,10 @@ import common.util.anim.AnimU;
 import common.util.anim.EAnimI;
 import common.util.stage.Music;
 
+/**
+ * パックに保存される魂アニメーションと、その音声・描画レイヤー設定を保持する。
+ * Identifier はコンテナ内の同一性に使用され、JSON 読み込み用コンストラクタでは注入まで null になる。
+ */
 @JsonClass(noTag = JsonClass.NoTag.LOAD)
 @IndexCont(PackData.class)
 @JsonClass.JCGeneric(Identifier.class)

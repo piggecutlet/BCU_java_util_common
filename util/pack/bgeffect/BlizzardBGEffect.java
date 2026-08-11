@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 雪片画像を大きさ・角度・速度を変えて斜め下へ流す前景の吹雪効果。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class BlizzardBGEffect extends BackgroundEffect {
     private final VImg blizzard;

@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 背景41または75の画像部品を岩・破片として使い、前景と後景に分けて上昇させる効果。
+ * 対応背景以外では既定背景75の部品を共有する。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class RockBGEffect extends BackgroundEffect {
     private FakeImage rock;
@@ -24,7 +28,7 @@ public class RockBGEffect extends BackgroundEffect {
     private final List<Float> size = new ArrayList<>();
     private final List<Boolean> isRock = new ArrayList<>();
     private final List<Float> angle = new ArrayList<>();
-    //0 : Behind, 2 : Front
+    // 0 は後景、1 は前景
     private final List<Byte> layer = new ArrayList<>();
     private final List<Integer> opacity = new ArrayList<>();
 

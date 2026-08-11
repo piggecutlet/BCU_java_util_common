@@ -10,8 +10,15 @@ import java.util.function.BiFunction;
 
 import common.util.Data;
 
+/**
+ * 先頭4バイトに本体長を持つBCUファイルを、ランダムアクセスで遅延読み取りする入力。
+ * サブストリームは同じファイルハンドルを共有するため、いずれかの{@link #close()}で全ビューが利用不能になる。
+ */
 class ISStream extends InputStream implements InStream {
 
+	/**
+	 * 共有{@link RandomAccessFile}の物理位置を追跡し、不要なseekを抑える所有者。
+	 */
 	private static class FileTracer {
 
 		private RandomAccessFile raf;
@@ -121,7 +128,7 @@ class ISStream extends InputStream implements InStream {
 
 	@Override
 	public OutStream translate() {
-		// TODO Auto-generated method stub
+		// TODO 自動生成されたメソッドスタブ
 		return null;
 	}
 

@@ -7,6 +7,10 @@ import common.util.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 烈波・小烈波の持続攻撃判定。
+ * 一定間隔で既命中集合を消去し、各間隔につき同じ実体へ1回だけダメージを与える。
+ */
 public class AttackVolcano extends AttackAb {
 	public ContVolcano handler;
 	protected boolean attacked = false;

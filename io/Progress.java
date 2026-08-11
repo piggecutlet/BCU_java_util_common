@@ -5,6 +5,9 @@ import com.google.api.client.googleapis.media.MediaHttpDownloaderProgressListene
 
 import java.util.function.Consumer;
 
+/**
+ * Google HTTPダウンローダーの状態をBCUの進捗値へ写し、任意のコールバックへ通知するアダプター。
+ */
 public class Progress implements MediaHttpDownloaderProgressListener {
 
 	public static final int WAIT = 0, CURR = 1, DONE = 2;

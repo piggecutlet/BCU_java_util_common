@@ -3,6 +3,10 @@ package common.battle;
 import common.CommonStatic;
 import common.util.stage.EStage;
 
+/**
+ * 入力源と {@link StageBasis} の更新を接続する戦闘ループの基底型。
+ * 軽量描画モードでは論理更新とアニメーションのみの更新を交互に実行する。
+ */
 public abstract class BattleField {
 
 	public StageBasis sb;

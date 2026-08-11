@@ -2,6 +2,10 @@ package common.battle.data;
 
 import common.util.Data.Proc;
 
+/**
+ * {@link DefaultData} の最大3回攻撃を、添字付きの {@link MaskAtk} として公開するアダプター。
+ * 射程配列が短い旧データでは0番の長射程設定へフォールバックする。
+ */
 public class DataAtk implements MaskAtk {
 
 	public final int index;

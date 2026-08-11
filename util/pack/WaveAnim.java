@@ -6,6 +6,10 @@ import common.util.anim.EAnimD;
 import common.util.anim.MaAnim;
 import common.util.anim.MaModel;
 
+/**
+ * 背景画像の分割部品を共有して波動エフェクトを再生するアニメーション定義。
+ * 画像自体は保持せず、初回読み込み時に Background の parts 参照を取得する。
+ */
 public class WaveAnim extends AnimI<WaveAnim, WaveAnim.WaveType> {
 
 	public enum WaveType implements AnimI.AnimType<WaveAnim, WaveType> {

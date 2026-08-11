@@ -8,6 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 重み付き候補から戦闘エンティティを選び、設定したロック範囲で選択結果を再利用する基底型。
+ * T_NL は毎回選択、T_LL はキーごとの選択固定、T_GL は全キー共通の選択固定を表す。
+ *
+ * @param <X> 候補が参照するエンティティ型
+ */
 @JsonClass
 public abstract class EntRand<X> extends Data {
 
@@ -59,6 +65,7 @@ public abstract class EntRand<X> extends Data {
 	public abstract boolean contains(X x, X origin);
 }
 
+/** 選択結果を再利用する範囲を抽象化する内部契約。 */
 interface Lock<X> {
 
 	EREnt<X> get(Object obj);
@@ -67,6 +74,7 @@ interface Lock<X> {
 
 }
 
+/** すべての呼び出し元で一つの選択結果を共有するロック。 */
 class LockGL<X> extends BattleObj implements Lock<X> {
 
 	private EREnt<X> ae;
@@ -85,6 +93,7 @@ class LockGL<X> extends BattleObj implements Lock<X> {
 
 }
 
+/** 呼び出し元キーごとに選択結果を保持するロック。 */
 class LockLL<X> extends HashMap<Object, EREnt<X>> implements Lock<X> {
 
 	private static final long serialVersionUID = 1L;

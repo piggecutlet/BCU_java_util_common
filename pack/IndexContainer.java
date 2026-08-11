@@ -4,20 +4,33 @@ import common.pack.FixIndexList.FixIndexMap;
 
 import java.lang.annotation.*;
 
+/**
+ * パックIDと型別の疎な固定インデックス表を結び付け、{@link Identifier}の生成・解決を共通化する。
+ * 表示順と固定IDは分離され、参照は常に固定ID側で解決される。
+ */
 public interface IndexContainer {
 
+	/**
+	 * 新しい固定IDを受け取り、対応する要素を生成する契約。
+	 */
 	public static interface Constructor<T extends R, R extends Indexable<?, R>> {
 
 		T get(Identifier<R> id);
 
 	}
 
+	/**
+	 * パックIDからコンテナを返す静的メソッドを示す標識。
+	 */
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	@interface ContGetter {
 	}
 
+	/**
+	 * 自身の固定IDを介して所有コンテナへ到達できる要素の契約。
+	 */
 	interface Indexable<R extends IndexContainer, T extends Indexable<R, T>> {
 
 		@SuppressWarnings("unchecked")
@@ -29,6 +42,9 @@ public interface IndexContainer {
 
 	}
 
+	/**
+	 * 要素型またはその上位型を、所有コンテナ型へ関連付ける標識。
+	 */
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
@@ -38,12 +54,18 @@ public interface IndexContainer {
 
 	}
 
+	/**
+	 * 型に対応する固定インデックス表へ畳み込み処理を適用する契約。
+	 */
 	interface Reductor<R, T> {
 
 		R reduce(R r, T t);
 
 	}
 
+	/**
+	 * 1種類の固定インデックス表だけを所有するコンテナ向けの簡易契約。
+	 */
 	public static interface SingleIC<T extends Indexable<?, T>> extends IndexContainer {
 
 		default T add(Constructor<T, T> con) {

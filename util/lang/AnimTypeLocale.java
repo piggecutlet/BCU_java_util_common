@@ -20,6 +20,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * アニメーション種別名を言語別JSONから読み込み、共有の多言語コンテナへ登録する。
+ */
 public class AnimTypeLocale {
 
 	@StaticPermitted

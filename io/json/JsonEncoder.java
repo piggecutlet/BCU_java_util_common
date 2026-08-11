@@ -12,6 +12,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * {@link JsonClass}と{@link JsonField}の規約に従い、オブジェクトグラフをGson要素へ変換する。
+ * Mapは順序付きの{@code key}/{@code val}配列として表現し、宣言型と実型が異なる対象には
+ * 復号用の{@code _class}を付与する。
+ */
 public class JsonEncoder {
 
 	public static JsonElement encode(Object obj) {

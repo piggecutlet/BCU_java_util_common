@@ -26,19 +26,24 @@ import common.util.unit.Enemy;
 
 import java.util.*;
 
+/**
+ * マップ内の単一ステージについて、敵編成、報酬、制限、演出参照を保持する定義。
+ * 識別子は所属{@link StageMap}内の固定インデックスであり、出現残数などの実行時状態は{@link EStage}が保持する。
+ */
 @IndexContainer.IndexCont(StageMap.class)
 @JsonClass.JCGeneric(Identifier.class)
 @JsonClass(noTag = NoTag.LOAD)
 public class Stage extends Data
 		implements BasedCopable<Stage, StageMap>, BattleStatic, IndexContainer.Indexable<StageMap, Stage> {
 
+	/**
+	 * 特定能力の発動方向に応じて加算する道場スコアの定義。
+	 */
 	@JsonClass(noTag = NoTag.LOAD)
 	public static class ScoreBonus implements Cloneable {
 		public int proc;
 		/**
-		 * 1: inflicted onto enemy
-		 * -1: inflicted onto cat
-		 * 0: both ways
+		 * 1: 敵へ付与、-1: 味方へ付与、0: 両方向
 		 */
 		public int dire;
 		public int score;
@@ -183,7 +188,7 @@ public class Stage extends Data
 			if(timeLimit != 0)
 				health = Integer.MAX_VALUE;
 
-			// Must be parsed only when it's for normal stages, not EoC/ItF/CotC
+			// 日本編・未来編・宇宙編ではなく、通常ステージの場合だけ解析する
 			if (hasCastleData) {
 				bossGuard = Integer.parseInt(strs[8]) == 1;
 			}
@@ -212,7 +217,7 @@ public class Stage extends Data
 						if(i < ss.length)
 							data[i] = Integer.parseInt(ss[i]);
 						else
-							//Handle missing value manually
+							// 欠損値を既定値で補う
 							if(i == 9)
 								data[i] = 100;
 
@@ -307,6 +312,9 @@ public class Stage extends Data
 		return id;
 	}
 
+	/**
+	 * ステージ固有制限と、所属マップの星・ステージ番号に一致する制限を順に合成する。
+	 */
 	public Limit getLim(int star) {
 		Limit tl = new Limit();
 		if (lim != null && (lim.star == -1 || lim.star == star))

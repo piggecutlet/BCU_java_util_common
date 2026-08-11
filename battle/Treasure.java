@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+/**
+ * お宝・施設レベル・果実・砲部品から、戦闘で使う倍率、所持金、再生産時間を算出する。
+ * 砲部品の曲線データは静的に読み込み、保存データは版ごとの配列長を補完して復元する。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 @JsonClass(read = RType.FILL)
 public class Treasure extends Data {
@@ -102,25 +106,16 @@ public class Treasure extends Data {
 	@JsonField
 	public int alien, star;
 
-	/**
-	 * new Treasure object
-	 */
 	protected Treasure(Basis bas) {
 		b = bas;
 		zread$000000();
 	}
 
-	/**
-	 * read Treasure from data
-	 */
 	protected Treasure(Basis bas, int ver, InStream is) {
 		b = bas;
 		zread(ver, is);
 	}
 
-	/**
-	 * copy Treasure object
-	 */
 	protected Treasure(Basis bas, Treasure t) {
 		b = bas;
 		tech = t.tech.clone();
@@ -134,23 +129,14 @@ public class Treasure extends Data {
 		deco = t.deco.clone();
 	}
 
-	/**
-	 * get multiplication of non-starred alien
-	 */
 	public float getAlienMulti() {
 		return 7 - alien * 0.01f;
 	}
 
-	/**
-	 * get cat attack multiplication
-	 */
 	public float getAtkMulti() {
 		return 1 + trea[T_ATK] * 0.005f;
 	}
 
-	/**
-	 * get base health
-	 */
 	public int getBaseHealth(boolean noCombo, StageBasis sb) {
 		int t = tech[LV_BASE];
 		int base = t < 6 ? t * 1000 : t < 8 ? 5000 + (t - 5) * 2000 : 9000 + (t - 7) * 3000;
@@ -162,9 +148,6 @@ public class Treasure extends Data {
 		return result;
 	}
 
-	/**
-	 * get normal canon attack
-	 */
 	public int getCanonAtk(boolean noCombo) {
 		int base = 50 + tech[LV_CATK] * 50 + trea[T_CATK] * 5;
 		return base * (100 + (noCombo ? 0 : b.getInc(C_C_ATK))) / 100;
@@ -238,7 +221,7 @@ public class Treasure extends Data {
 		return ans;
 	}
 
-	public float getBaseMagnification(int id, List<Trait> traits) { // TODO: deprecate (maybe)
+	public float getBaseMagnification(int id, List<Trait> traits) { // TODO: 廃止を検討する
 		return getBaseMagnification(id, traits, false);
 	}
 
@@ -253,55 +236,36 @@ public class Treasure extends Data {
 		return raw ? clc.applyFormulaRaw(type, deco[id - 1]) : clc.applyFormula(type, deco[id - 1]);
 	}
 
-	public float getDecorationMagnification(int id, int type) { // TODO: deprecate (maybe)
+	public float getDecorationMagnification(int id, int type) { // TODO: 廃止を検討する
 		return getDecorationMagnification(id, type, false);
 	}
 
-	/**
-	 * get cat health multiplication
-	 */
 	public float getDefMulti() {
 		return 1 + trea[T_DEF] * 0.005f;
 	}
 
-	/**
-	 * get EVA kill ability attack multiplication
-	 */
 	public float getEKAtk(int comboInc) {
 		return EVA_KILLER_ATTACK * comboInc / 100f;
 	}
 
-	/**
-	 * get EVA kill ability reduce damage multiplication
-	 */
 	public float getEKDef(int comboInc) {
 		return EVA_KILLER_RESIST / (100f + comboInc);
 	}
 
-	/**
-	 * get EVA kill ability attack multiplication
-	 */
 	public float getWKAtk(int comboInc) {
 		return WITCH_KILLER_ATTACK * comboInc / 100f;
 	}
 
-	/**
-	 * get EVA kill ability reduce damage multiplication
-	 */
 	public float getWKDef(int comboInc) {
 		return WITCH_KILLER_RESIST / (100f + comboInc);
 	}
 
-	/**
-	 * get accounting multiplication
-	 */
 	public float getDropMulti() {
 		return 0.95f + 0.05f * tech[LV_ACC] + 0.005f * trea[T_ACC];
 	}
 
 	/**
-	 * get processed cat cool down time
-	 * max treasure & level should lead to -264f recharge
+	 * 研究力・お宝・コンボを反映し、60フレームを下限として再生産時間を返す。
 	 */
 	public int getFinRes(int ori, int comboInc) {
 		float research = (tech[LV_RES] - 1) * 6 + trea[T_RES] * 0.3f;
@@ -310,8 +274,7 @@ public class Treasure extends Data {
 	}
 
 	/**
-	 * get processed cat cool down time w/ global restriction
-	 * ignores research and treasure data
+	 * ステージ共通再生産時間へコンボだけを反映する。
 	 */
 	public int getFinResGlobal(int ori, int comboInc) {
 		if (ori <= 60)
@@ -321,18 +284,12 @@ public class Treasure extends Data {
 		return (int) Math.max(60, ori - deduction);
 	}
 
-	/**
-	 * get reverse cat cool down time
-	 */
 	public int getRevRes(int res) {
 		float research = (tech[LV_RES] - 1) * 6 + trea[T_RES] * 0.3f;
 		return (int) Math.max(60, res + research);
 
 	}
 
-	/**
-	 * get maximum fruit of certain trait bitmask
-	 */
 	public float getFruit(List<Trait> types) {
 		float ans = 0;
 		FixIndexMap<Trait> BCTraits = UserProfile.getBCData().traits;
@@ -353,9 +310,6 @@ public class Treasure extends Data {
 		return ans * 0.01f;
 	}
 
-	/**
-	 * get damage reduce multiplication from strong against ability
-	 */
 	public float getGOODDEF(List<Trait> eTraits, List<Trait> traits, Level level, int comboInc) {
 		float ini = traits.isEmpty() ? 1 : 0.5f - 0.1f / 3 * getFruit(traits);
 
@@ -388,34 +342,22 @@ public class Treasure extends Data {
 		return ini * com;
 	}
 
-	/**
-	 * get attack multiplication from super massive damage ability
-	 */
 	public float getMASSIVESATK(List<Trait> traits) {
 		return 5 + 1f / 3 * getFruit(traits);
 	}
 
-	/**
-	 * get attack multiplication from massive damage ability
-	 */
 	public float getMASSIVEATK(List<Trait> traits, int comboInc) {
 		float ini = 3 + 1f / 3 * getFruit(traits);
 		float combo = 1 - comboInc * 0.01f;
 		return ini * combo;
 	}
 
-	/**
-	 * get attack multiplication from massive damage ability
-	 */
 	public float getGOODATK(List<Trait> traits, int comboInc) {
 		float ini = 1.5f + 0.3f / 3 * getFruit(traits);
 		float combo = 1 - comboInc * 0.01f;
 		return ini * combo;
 	}
 
-	/**
-	 * get damage reduce multiplication from resistant ability
-	 */
 	public float getRESISTDEF(List<Trait> eTraits, List<Trait> traits, Level level, int comboInc) {
 		float ini = traits.isEmpty() ? 1 : 0.25f - 0.05f / 3 * getFruit(traits);
 
@@ -444,16 +386,10 @@ public class Treasure extends Data {
 		return ini * com;
 	}
 
-	/**
-	 * get damage reduce multiplication from super resistant ability
-	 */
 	public float getRESISTSDEF(List<Trait> traits) {
 		return 1f / 6 - 1f / 126 * getFruit(traits);
 	}
 
-	/**
-	 * get multiplication of starred enemy
-	 */
 	public float getStarMulti(int st) {
 		if (st == 1)
 			return 16 - star * 0.01f;
@@ -468,9 +404,6 @@ public class Treasure extends Data {
 		return 0.95f + tech[LV_XP] * 0.05f + tm;
 	}
 
-	/**
-	 * get canon recharge time
-	 */
 	protected int CanonTime(int map, boolean noCombo) {
 		int base = 1500 + 50 * (tech[LV_CATK] - tech[LV_RECH]);
 
@@ -486,18 +419,12 @@ public class Treasure extends Data {
 		return Math.max(950, base);
 	}
 
-	/**
-	 * get the cost to upgrade worker cat
-	 */
 	protected int getLvCost(int lv) {
 		int t = tech[LV_WORK];
 		int base = t < 8 ? 30 + 10 * t : 20 * t - 40;
 		return lv >= 8 ? -1 : base * lv * 100;
 	}
 
-	/**
-	 * get wallet capacity
-	 */
 	protected int getMaxMon(int lv, boolean noCombo) {
 		int base = Math.max(25, 50 * tech[LV_WALT]);
 		base = base * (1 + lv);
@@ -505,16 +432,10 @@ public class Treasure extends Data {
 		return base * (100 + (noCombo ? 0 : b.getInc(C_M_MAX)));
 	}
 
-	/**
-	 * get money increase rate
-	 */
 	protected int getMonInc(int lv) {
 		return (int) ((15 + 10 * tech[LV_WORK]) * (1 + (lv - 1) * 0.1) + trea[T_WORK]);
 	}
 
-	/**
-	 * save data to file
-	 */
 	protected void write(OutStream os) {
 		os.writeString("0.4.0");
 		os.writeIntB(tech);
@@ -527,7 +448,7 @@ public class Treasure extends Data {
 	}
 
 	/**
-	 * read date from file, support multiple versions
+	 * 保存版に応じた読み込み処理を選び、未保存項目は既定値のまま残す。
 	 */
 	private void zread(int val, InStream is) {
 		zread$000000();

@@ -6,6 +6,10 @@ import common.system.files.VFile;
 import common.util.ImgCore;
 import common.util.anim.ImgCut;
 
+/**
+ * 仮想ファイル由来の画像を必要になるまで読み込まず、解放後に再読み込みできる画像参照。
+ * 直接{@link FakeImage}から作成した場合は元ファイルがないため、解放対象にならない。
+ */
 public class VImg extends ImgCore {
 
 	private final VFile file;
@@ -69,6 +73,9 @@ public class VImg extends ImgCore {
 		return file == null ? name.length() == 0 ? "img" : name : file.getName();
 	}
 
+	/**
+	 * ファイル由来の画像だけを解放し、次回参照時に再読み込みできる状態へ戻す。
+	 */
 	public void unload() {
 		if (file == null)
 			return;

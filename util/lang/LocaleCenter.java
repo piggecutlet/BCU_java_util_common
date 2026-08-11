@@ -3,6 +3,9 @@ package common.util.lang;
 import common.io.json.JsonClass;
 import common.io.json.JsonClass.NoTag;
 
+/**
+ * 表示名とツールチップの取得・更新を、表示対象とUI部品の間で仲介する型群。
+ */
 public class LocaleCenter {
 
 	public interface Binder {

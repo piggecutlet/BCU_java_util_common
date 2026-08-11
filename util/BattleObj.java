@@ -15,18 +15,11 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
- * this class enables copy of an interconnected system. <br>
+ * 相互参照を含む戦闘オブジェクト群を一括複製するための基底型。<br>
  * <br>
- * capable to copy: <br>
- * 1. Primary field <br>
- * 2. String field <br>
- * 3. Copible field <br>
- * 4. Array field of type 1~4 <br>
- * 5. Cloneable Collection and Map field with generic type of 1~4<br>
- * note: Collections are not Hashed <br>
- * exclusion:<br>
- * EAnimI (override)<br>
- * EneRand (update map reference) <br>
+ * プリミティブ、文字列、対象の戦闘オブジェクト、配列、および引数なしコンストラクタを持つ
+ * Collection・Map を再帰的に複製する。共有資源として {@link #EXCLUDE} に列挙された型は参照を共有する。<br>
+ * 同一インスタンスの対応付けは複製処理中だけ保持され、{@link #clone()} 完了時に破棄される。
  */
 @StaticPermitted(StaticPermitted.Type.TEMP)
 public class BattleObj extends ImgCore implements Cloneable {
@@ -139,17 +132,16 @@ public class BattleObj extends ImgCore implements Cloneable {
 	}
 
 	/**
-	 * BattleStatic also has this method but different return type
+	 * BattleStatic と同名だが戻り値が異なり、両方を実装する型をコンパイル時に排除する。
 	 */
 	public final int conflict() {
 		return 0;
 	}
 
 	/**
-	 * override this method to make your own copy mechanics if you don't want all
-	 * your fields copied <br>
+	 * 全フィールドを既定どおり複製しない場合に、独自の複製処理を実装する。<br>
 	 * <br>
-	 * this method is called to copy object's references to other objects
+	 * {@link #copy} が浅い複製で初期化された後に呼ばれる。
 	 */
 	protected void performDeepCopy() {
 		List<Field> lf = getField(getClass());
@@ -168,9 +160,9 @@ public class BattleObj extends ImgCore implements Cloneable {
 	}
 
 	/**
-	 * override this method to flush all objects used<br>
+	 * 複製処理で使用した一時的な相互参照を再帰的に解放する。<br>
 	 * <br>
-	 * this method is called recursively to flush all resources used
+	 * {@link #clone()} の最後に元オブジェクト側から呼ばれる。
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void terminate() {
@@ -242,7 +234,7 @@ public class BattleObj extends ImgCore implements Cloneable {
 	}
 
 	/**
-	 * this method is called to check that there isn't any unintended class
+	 * 既定の複製規則で扱えない実行時型を検出する。
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void check(List<Field> lf) {
@@ -280,13 +272,14 @@ public class BattleObj extends ImgCore implements Cloneable {
 	}
 
 	/**
-	 * make a copy of this object during systematic clone process
+	 * 一括複製中にこのオブジェクトの対応先を取得する。
+	 * すでに複製済みなら同じ対応先を返し、循環参照と共有参照を維持する。
 	 */
 	private BattleObj sysCopy() {
 		if (copy != null)
 			return copy;
 		try {
-			// copy primary types
+			// まずプリミティブ値と参照を浅く複製する
 			copy = (BattleObj) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

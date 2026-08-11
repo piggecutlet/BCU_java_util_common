@@ -10,9 +10,17 @@ import common.system.fake.FakeImage.Marker;
 
 import java.util.List;
 
+/**
+ * {@link Source.AnimLoader} を取得元とするパック／ワークスペース用アニメーション資源。
+ * 資源位置を識別子として保持し、画像をキャッシュしながらモデルとタイムラインの取得・必須ファイル検証を委譲する。
+ */
 @JsonClass.JCGeneric(ResourceLocation.class)
 public class AnimCI extends AnimU<AnimCI.AnimCIKeeper> {
 
+	/**
+	 * Sourceローダーとアニメーション層の間で画像キャッシュとマーカー設定を受け持つ。
+	 * {@link #unload()} が破棄するのはスプライト画像だけで、アイコン参照は保持される。
+	 */
 	public static class AnimCIKeeper implements AnimU.ImageKeeper {
 
 		public final Source.AnimLoader loader;

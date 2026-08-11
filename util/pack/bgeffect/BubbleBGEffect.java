@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 泡画像を左右に揺らしながら上昇させ、画面外へ出た要素を下端へ再配置する前景効果。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class BubbleBGEffect extends BackgroundEffect {
     private final VImg bubble;

@@ -16,6 +16,10 @@ import common.util.unit.Unit;
 
 import java.util.List;
 
+/**
+ * 1つの出撃編成と、その編成に適用する宝物・コンボ・にゃんこ砲設定を保持する。
+ * 戦闘開始前には形態・本能・本能玉をレベル制限に合わせて実戦用データへ調整する。
+ */
 @JsonClass
 public class BasisLU extends Basis implements Copable<BasisLU>, BattleStatic {
 
@@ -170,8 +174,7 @@ public class BasisLU extends Basis implements Copable<BasisLU>, BattleStatic {
 	}
 
 	/**
-	 * although the Treasure information is the same, this includes the effects of
-	 * combo, so need to be an independent Treasure Object
+	 * 元セットと宝物値が同じでも、編成固有のコンボ補正を参照するため独立したインスタンスを返す。
 	 */
 	@Override
 	public Treasure t() {

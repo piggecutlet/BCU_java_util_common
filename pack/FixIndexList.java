@@ -18,9 +18,17 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.BiConsumer;
 
+/**
+ * 要素削除後も数値IDを詰め直さない疎配列。
+ * JSONでは非null要素を{@code ind}/{@code val}の組として保存し、固定IDの互換性を維持する。
+ */
 @JsonClass(read = RType.FILL)
 public class FixIndexList<T> extends Data {
 
+	/**
+	 * 固定ID順の疎配列に、利用者が並べ替え可能な表示順{@code order}を重ねるコンテナ。
+	 * {@link #get(int)}は表示順、{@link #getRaw(int)}は固定IDを受け取るため、参照解決では後者を使う。
+	 */
 	@JsonClass(read = RType.FILL)
 	public static class FixIndexMap<T extends Indexable<?, ?>> extends FixIndexList<T> implements Iterable<T> {
 

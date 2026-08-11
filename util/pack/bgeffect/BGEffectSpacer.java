@@ -8,6 +8,10 @@ import common.system.fake.FakeTransform;
 import common.util.anim.EAnimD;
 import common.util.pack.Background;
 
+/**
+ * 一つの背景効果要素を、指定した整数範囲へ等間隔に反復描画する。
+ * BGIMAGE 基準では value を背景本体部品の幅へ変換し、DEFAULT 基準では戦闘座標の間隔として保持する。
+ */
 public class BGEffectSpacer {
     public final int pos0, pos1, value;
     public final BattleRange.SNAP snap;
@@ -57,10 +61,10 @@ public class BGEffectSpacer {
     }
 
     /**
-     * Convert battle unit to pixel unit
-     * @param p Position in battle
-     * @param siz Size of battle
-     * @return Converted pixel
+     * 戦闘座標を描画ピクセルへ変換する。
+     * @param p 戦闘座標
+     * @param siz 戦闘画面の拡大率
+     * @return 変換後のピクセル値
      */
     private int convertP(float p, float siz) {
         return (int) (p * BattleRange.battleRatio * siz);

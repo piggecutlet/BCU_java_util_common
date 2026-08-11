@@ -13,6 +13,10 @@ import common.util.unit.Trait;
 
 import java.util.ArrayList;
 
+/**
+ * ユーザーパックで編集可能な敵データ。
+ * 取り込み時に参照先パックで利用できる属性だけを残し、ステージ基礎値から敵倍率を解決する。
+ */
 @JsonClass
 public class CustomEnemy extends CustomEntity implements MaskEnemy {
 

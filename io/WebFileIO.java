@@ -21,6 +21,10 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
+/**
+ * HTTPリソースをファイルまたはJSONへ取得する共通入口。
+ * 分割ダウンロードでは再試行を構成し、直接取得を含む全経路で渡された出力ストリームを完了時に閉じる。
+ */
 public class WebFileIO {
 
 	public static final int BUFFER = 1 << 12, CHUNK = 1 << 20, MAX = 1 << 20;

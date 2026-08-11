@@ -23,6 +23,10 @@ import common.util.unit.Form;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 1戦分の決定論的な実行状態を所有し、入力後の生成・移動・攻撃・事後確定・除去を順序付ける。
+ * 実体、持続攻撃、一時演出、遅延召喚は別一覧で管理し、フレーム途中の追加が同じ更新段階へ混入しないようにする。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class StageBasis extends BattleObj {
 
@@ -82,7 +86,7 @@ public class StageBasis extends BattleObj {
 	public boolean leaSort = false;
 
 	/**
-	 * Real groundHeight of battle
+	 * 描画側から登録される実際の地面高と戦場高。未登録時は-1。
 	 */
 	public float midH = -1, battleHeight = -1;
 	private final List<AttackAb> la = new ArrayList<>();
@@ -100,17 +104,17 @@ public class StageBasis extends BattleObj {
 	public final int[][] lineDelay;
 
 	/**
-	 * Flag for whether summoner has been summoned or not
+	 * 各編成枠の召喚元が現在の生存群で出撃済みか。
 	 */
 	public final boolean[][] summonerSummoned = new boolean[2][5];
 	/**
-	 * Flag for whether spirit has been summoned or not
+	 * 各編成枠の精霊が召喚済みか。
 	 */
 	public final boolean[][] spiritSummoned = new boolean[2][5];
 
 	public final int[][] spiritEmphasizeCount = new int[2][5];
 	public final int[][] spiritEmphasizeStartTime = new int[2][5];
-	public final int[][][] deployDupe = new int[2][5][2]; // [count, delay]
+	public final int[][][] deployDupe = new int[2][5][2]; // 第3添字: [残り複製数, 次の複製までの時間]
 
 	public StageBasis(BattleField bf, EStage stage, BasisLU bas, int[] ints, long seed, boolean buttonDelayOn) {
 		b = bas;
@@ -132,7 +136,7 @@ public class StageBasis extends BattleObj {
 			ebase = new ECastle(this);
 			ebase.added(1, 800);
 
-			// If enemy base is castle, no need to perform delayed first spawn
+			// 通常の敵城なら、敵城実体の遅延出現は不要
 			Arrays.fill(est.first, -1);
 		}
 		ubase = new ECastle(this, bas);
@@ -216,23 +220,14 @@ public class StageBasis extends BattleObj {
 		}
 	}
 
-	/**
-	 * returns visual money.
-	 */
 	public int getMoney() {
 		return money / 100;
 	}
 
-	/**
-	 * returns visual max money
-	 */
 	public int getMaxMoney() {
 		return maxMoney / 100;
 	}
 
-	/**
-	 * returns visual next level.
-	 */
 	public int getUpgradeCost() {
 		return upgradeCost == -1 ? -1 : upgradeCost / 100;
 	}
@@ -286,7 +281,7 @@ public class StageBasis extends BattleObj {
 	}
 
 	/**
-	 * receive attacks and excuse together, capture targets first
+	 * 攻撃を現在フレームの処理待ち一覧へ追加する。対象捕捉は全追加後にまとめて行う。
 	 */
 	public void getAttack(AttackAb a) {
 		if (a == null)
@@ -295,7 +290,7 @@ public class StageBasis extends BattleObj {
 	}
 
 	/**
-	 * the base that entity with this direction will attack
+	 * 指定進行方向の実体が攻撃する城を返す。
 	 */
 	public AbEntity getBase(int dire) {
 		return dire == 1 ? ubase : ebase;
@@ -306,9 +301,8 @@ public class StageBasis extends BattleObj {
 	}
 
 	/**
-	 * list of entities in the range d0 ~ d1 that can be touched by entity with given direction and touch mode
-	 * entity is picked if d0 <= pos <= d1 when excludeRightEdge is false
-	 *                  if d0 <= pos <  d1 when excludeRightEdge is true (used by breakerblast and blast ability), TODO: waves should use it)
+	 * 指定陣営・接触種別・座標範囲に含まれる実体と城を返す。
+	 * {@code excludeRightEdge} が真なら右端を除外する。TODO: 波動でも右端除外を使用する。
 	 */
 	public List<AbEntity> inRange(int touch, int dire, float d0, float d1, boolean excludeRightEdge) {
 
@@ -341,11 +335,11 @@ public class StageBasis extends BattleObj {
 		if (dire == 0)
 			return ans;
 
-		float farLeft = Math.min(d0, d1); // would be furthest left (1st point) -175
-		float farRight = Math.max(d0, d1); // would be furthest right (4th point) 175
+		float farLeft = Math.min(d0, d1); // 外側左端
+		float farRight = Math.max(d0, d1); // 外側右端
 
-		float innerLeft = (farLeft + farRight) / 2 - (blindSpot / 2); // would be second to furthest left (3rd point)
-		float innerRight = (farLeft + farRight) / 2 + (blindSpot / 2); // would be second to furthest right (2nd point)
+		float innerLeft = (farLeft + farRight) / 2 - (blindSpot / 2); // 中央除外範囲の左端
+		float innerRight = (farLeft + farRight) / 2 + (blindSpot / 2); // 中央除外範囲の右端
 
 		if (excludeRightEdge) {
 			innerRight -= 1;
@@ -683,11 +677,6 @@ public class StageBasis extends BattleObj {
 		return ebase.health > 0 && ubase.health > 0 && !isDojoOvertime();
 	}
 
-	/**
-	 * process actions and add enemies from stage first then update each entity
-	 * and receive attacks then excuse attacks and do post update then delete dead
-	 * entities
-	 */
 	protected void update() {
 		boolean active = isActive();
 		if (midH != -1 && bgEffect != null && !bgEffectInitialized) {
@@ -712,8 +701,6 @@ public class StageBasis extends BattleObj {
 		}
 
 		le.sort(Comparator.comparingInt(e -> e.currentLayer));
-
-		// i would prefer "dev only" code to be on its own separate branch so it's not clogging main branch, im too lazy to do that, sorry  -- red
 
 		if (buttonDelay > 0 && --buttonDelay == 0) {
 			act_spawn(selectedUnit[0], selectedUnit[1], true);
@@ -810,7 +797,7 @@ public class StageBasis extends BattleObj {
 			if (active)
 				est.update();
 
-			// Cannon should be updated after entities
+			// にゃんこ砲は実体更新後に更新する
 			// canon.update();
 
 			if (sniper != null && active)
@@ -1233,16 +1220,16 @@ public class StageBasis extends BattleObj {
 	public int getDelayStrength(int current, int max, int[] delay) {
 		int prog = max - current;
 		int inc = 0;
-		if (delay[0] != 0) { // increase by %
+		if (delay[0] != 0) { // 経過分に対する割合
 			int add = Math.min(prog * Math.min(100, delay[0]) / 100, max);
 			if (add == 0)
 				add = delay[0] < 0 ? -1 : 1;
 			inc += add;
 		}
-		if (delay[1] != 0) { // increase direct value
+		if (delay[1] != 0) { // 直接加算
 			inc += Math.min(delay[1], current);
 		}
-		if (delay[2] != 0) { // increase by % of max C
+		if (delay[2] != 0) { // 最大再生産時間に対する割合
 			int add = Math.min(max * Math.min(100, delay[2]) / 100, max);
 			if (add == 0)
 				add = delay[2] < 0 ? -1 : 1;

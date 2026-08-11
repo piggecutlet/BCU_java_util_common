@@ -9,6 +9,10 @@ import common.system.fake.FakeImage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 描画品質の適用と、拡張・透過・発光を伴う画像描画を提供する共通基底型。
+ * {@link #randSeries} はランダム画像の並びを呼び出し間で共有し、同じ添字では同じ選択を再利用する。
+ */
 public class ImgCore extends Data {
 
 	@StaticPermitted

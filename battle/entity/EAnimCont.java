@@ -5,6 +5,10 @@ import common.system.fake.FakeGraphics;
 import common.util.BattleObj;
 import common.util.anim.EAnimD;
 
+/**
+ * ステージ上の位置・描画層に結び付いた一時エフェクトを進行・描画する。
+ * 完了判定は保持するアニメーションへ委譲され、ステージ側が完了済み要素を除去する。
+ */
 public class EAnimCont extends BattleObj {
 
 	public final float pos;
@@ -26,9 +30,6 @@ public class EAnimCont extends BattleObj {
 		this.offsetY = offsetY;
 	}
 
-	/**
-	 * return whether this animation is finished
-	 */
 	public boolean done() {
 		return anim.done();
 	}

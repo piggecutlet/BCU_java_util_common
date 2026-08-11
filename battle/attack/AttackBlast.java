@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 爆破の1段階分を表し、段階ごとに範囲を外側へ移して威力を30%ずつ減衰させる。
+ * 同じ段階の持続時間内では、既命中集合により同一実体への再命中を防ぐ。
+ */
 public class AttackBlast extends AttackAb {
     public ContBlast handler;
     protected final Set<Entity> bcapt = new HashSet<>();
@@ -29,7 +33,7 @@ public class AttackBlast extends AttackAb {
 
         if (stage == 0)
             le.addAll(model.b.inRange(touch, -dire, sta, end, excludeRightEdge));
-        else // todo: figure out if sta is always rightmost and end is always leftmost
+        else // TODO: sta が常に右端、end が常に左端かを確認する
             le.addAll(model.b.inRange(touch, -dire, sta + EXPLOSION_SHIFT * stage, end - EXPLOSION_SHIFT * stage, excludeRightEdge, 150 + (EXPLOSION_SHIFT * (stage - 1) * 2)));
         for (AbEntity e : le)
             if (e instanceof Entity && !bcapt.contains((Entity) e))

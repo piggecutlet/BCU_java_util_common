@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * モデルの1部品を実行時の可変状態として表す描画ノード。
+ * 位置、拡縮、回転、不透明度は親ノードから再帰的に合成され、タイムラインの変更種別は
+ * {@link #alter(int, float)} を通じて対応する状態へ反映される。
+ */
 public class EPart extends ImgCore implements Comparable<EPart> {
 
 	private static final DecimalFormat df;
@@ -46,12 +51,12 @@ public class EPart extends ImgCore implements Comparable<EPart> {
 	private EPart fa, para;
 	private int id, img;
 	private P pos = new P(0, 0), piv = new P(0, 0), sca = new P(0, 0);
-	private int z, glow, extType; // extType - 0 : Slow, 1 : Curse
+	private int z, glow, extType; // extType - 0：鈍足、1：呪い
 	private float angle, opacity, extendX, extendY, gsca;
 	private int hf, vf;
 	protected EAnimI ea;
 
-	public int par;// temp
+	public int par;// 一時的な親インデックス
 
 	protected EPart(MaModel mm, AnimI<?, ?> aa, int[] part, String str, int i, EPart[] ents) {
 		model = mm;
@@ -270,10 +275,11 @@ public class EPart extends ImgCore implements Comparable<EPart> {
 	}
 
 	/**
-	 * Draw part with specified opacity (Os). If part already has its own opacity (Oo), then formula is Oo * Op
-	 * @param g Graphic
-	 * @param base Base
-	 * @param opacity Opacity, range is 0 ~ 255
+	 * 部品固有の不透明度に指定値を乗算して描画する。
+	 * ただし呪い用ランダム描画では、現状この引数は適用されない。
+	 * @param g 描画先
+	 * @param base 基準倍率
+	 * @param opacity 追加の不透明度。範囲は0から255
 	 */
 	protected void drawPartWithOpacity(FakeGraphics g, P base, int opacity) {
 		if (img < 0 || id < 0 || opa() < CommonStatic.getConfig().deadOpa * 0.01 + 1e-5 || a.parts(img) == null)
@@ -316,6 +322,10 @@ public class EPart extends ImgCore implements Comparable<EPart> {
 		g.delete(at);
 	}
 
+	/**
+	 * 描画合成用の親を一時的に差し替える。
+	 * {@code null} を渡すと、直前に退避した親へ戻す。
+	 */
 	protected void setPara(EPart p) {
 		if (p == null) {
 			fa = para;
@@ -393,7 +403,7 @@ public class EPart extends ImgCore implements Comparable<EPart> {
 			fa.transform(g, sizer);
 		}
 
-		if (ent[0] != this) { // check if not part 0
+		if (ent[0] != this) { // 部品0以外
 			P scaledPosition;
 
 			if (fa != null) {

@@ -7,17 +7,19 @@ import common.util.anim.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JSON 背景効果の一要素を描画するため、指定された画像・imgcut・モデル・アニメーションを遅延読み込みする。
+ */
 public class BGEffectAnim extends AnimD<BGEffectAnim, BGEffectAnim.BGEffType> {
 
     private final String imgcutName, mamodelName, maanimName;
     private VImg img;
 
     /**
-     * Animation class for BG effect
-     * @param st Name of png
-     * @param imgcut Name of imguct
-     * @param mamodel Name of mamodel
-     * @param maanim Name of maanim
+     * @param st PNG ファイル名
+     * @param imgcut imgcut ファイル名
+     * @param mamodel mamodel ファイル名
+     * @param maanim maanim ファイル名。maanim で終わらない場合は空アニメーションを使用する
      */
     public BGEffectAnim(String st, String imgcut, String mamodel, String maanim) {
         super(st);
@@ -60,13 +62,13 @@ public class BGEffectAnim extends AnimD<BGEffectAnim, BGEffectAnim.BGEffType> {
 
     @Override
     public boolean cantLoadAll(AnimU.ImageKeeper.AnimationType type) {
-        // Background effect animation is part of BC animation, there must not be failure
+        // ゲーム本体の背景効果資源であり、欠落を許容する対象にしない
         return false;
     }
 
     @Override
     public List<String> collectInvalidAnimation(AnimU.ImageKeeper.AnimationType type) {
-        // Background effect animation is part of BC animation, there must not be failure
+        // ゲーム本体の背景効果資源であり、無効アニメーションとして収集しない
         return new ArrayList<>();
     }
 }

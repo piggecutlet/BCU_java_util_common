@@ -41,9 +41,16 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+/**
+ * 1パックが所有する型別の固定インデックス表を集約する基底。
+ * {@link Identifier}の数値ID互換性を保つため、削除や表示順変更でも各表の生インデックスは詰め直さない。
+ */
 @JsonClass(read = RType.FILL, noTag = NoTag.LOAD)
 public abstract class PackData implements IndexContainer {
 
+    /**
+     * 配布済みBCデータを仮想ファイルツリーから構築する予約パック。
+     */
     public static class DefPack extends PackData {
 
         public VFileRoot root = new VFileRoot(".");
@@ -126,7 +133,7 @@ public abstract class PackData implements IndexContainer {
                 Identifier<Unit>[] units = new Identifier[strs.length - 3];
                 for (int i = 3; i < strs.length; i++)
                     units[i - 3] = Identifier.parseInt(CommonStatic.parseIntN(strs[i]), Unit.class);
-                groups.set(id, new CharaGroup(id, name, type % 3, units)); // FIXME figure out what type 3 is
+                groups.set(id, new CharaGroup(id, name, type % 3, units)); // FIXME type 3が何を表すか未特定
             }
         }
 
@@ -213,7 +220,7 @@ public abstract class PackData implements IndexContainer {
                 Identifier<Soul> identifier = new Identifier<>(Identifier.DEF, Soul.class, i);
                 souls.add(new Soul(identifier, anim));
             }
-            String dem = "demonsoul"; // TODO identify if anim is enemy or not in demon soul name in effect page
+            String dem = "demonsoul"; // TODO エフェクト画面のdemon soul名で、アニメーションが敵扱いか特定
             demonSouls.add(new DemonSoul(0, new AnimUD(pre + dem + mid, "demonsoul_" + Data.duo(0), null, null)));
             demonSouls.add(new DemonSoul(1, new AnimUD(pre + dem + mid, "demonsoul_" + Data.duo(1), null, null)));
         }
@@ -237,14 +244,14 @@ public abstract class PackData implements IndexContainer {
                     u.info.tfLevel = tf;
                 }
 
-                //TF cost takes higher priority, replace even though previous value wasn't -1
+                // 第3形態コスト側を優先し、既存値が-1でなくても置換
                 tf = Integer.parseInt(strs[25]);
 
                 if (tf != -1) {
                     u.info.tfLevel = tf;
                 }
 
-                //Handle zero form
+                // 第0形態の解放レベル
                 tf = Integer.parseInt(strs[26]);
 
                 if (tf != -1) {
@@ -276,6 +283,10 @@ public abstract class PackData implements IndexContainer {
 
     }
 
+    /**
+     * パック識別子、要求コア版、親パック、表示情報を保持する互換性メタデータ。
+     * 0.6.4.0より前の単一言語{@code name}は注入後に多言語{@code names}へ移行する。
+     */
     @JsonClass(noTag = NoTag.LOAD)
     public static class PackDesc {
         public String BCU_VERSION;
@@ -328,12 +339,17 @@ public abstract class PackData implements IndexContainer {
 
         @JsonDecoder.OnInjected
         public void onInjected() {
-            //Temporary value, may need to make a separate isOlderPack function later on
+            // 暫定値。将来はisOlderPack相当を分離する必要があるかもしれない
             if (Data.getVer(BCU_VERSION) < Data.getVer("0.6.4.0"))
                 names.put(name);
         }
     }
 
+    /**
+     * ワークスペースまたは暗号化パックをデータ表へ遅延注入するユーザーパック。
+     * 読込中は{@link UserProfile#CURRENT_PACK}へソースを公開して旧形式の参照を補正し、
+     * 成功した編集可能パックだけ要求コア版を現行版へ更新する。
+     */
     @JsonClass(read = RType.FILL)
     public static class UserPack extends PackData {
 
@@ -358,7 +374,7 @@ public abstract class PackData implements IndexContainer {
         private JsonElement elem;
 
         /**
-         * for old reading method only
+         * 旧読込方式との互換専用。
          */
         @Deprecated
         public UserPack(PackDesc desc, Source s) {
@@ -377,7 +393,7 @@ public abstract class PackData implements IndexContainer {
         }
 
         /**
-         * for generating new pack only
+         * 新規パック生成専用。
          */
         public UserPack(String id) {
             desc = new PackDesc(id);
@@ -485,14 +501,14 @@ public abstract class PackData implements IndexContainer {
                 }
             }
 
-            //Since it succeeded to load all data, update Core version of this workspace pack
+            // 全データの読込成功後、ワークスペースの要求コア版を更新
             if(editable) {
                 desc.BCU_VERSION = AssetLoader.CORE_VER;
             }
         }
 
         public boolean validate() {
-            //Check if any units contain corrupted animation
+            // ユニットの必須アニメーション検証
             for(Unit unit : units) {
                 if (unit == null)
                     continue;
@@ -506,7 +522,7 @@ public abstract class PackData implements IndexContainer {
                 }
             }
 
-            //Check if any enemies contain corrupted animation
+            // 敵の必須アニメーション検証
             for(Enemy enemy : enemies) {
                 if (enemy == null)
                     continue;
@@ -515,7 +531,7 @@ public abstract class PackData implements IndexContainer {
                     return false;
             }
 
-            //Check if any souls contain corrupted animation
+            // 魂の必須アニメーション検証
             for (Soul soul : souls) {
                 if (soul == null)
                     continue;
@@ -528,17 +544,15 @@ public abstract class PackData implements IndexContainer {
         }
 
         /**
-         * Collect invalid animation data
+         * 必須ファイルを読み込めないアニメーションを収集する。
          *
-         * @return Returns collected data of animation<br>
-         * {@link Pair}'s {@linkplain Pair#getFirst() key} will be container of animation. It can be form, enemy, or soul<br>
-         * {@link Pair}'s {@linkplain Pair#getSecond() value} will be list of corrupted animation file name, being {@link List}&lt;String&gt;<br>
-         * If pair's value is empty, it means animation itself was null
+         * @return 第1要素が形態・敵・魂、第2要素が不足ファイル名の一覧である組。
+         *         一覧が空の場合はアニメーション自体が{@code null}
          */
         public List<Pair<Object, List<String>>> collectInvalidAnimation() {
             List<Pair<Object, List<String>>> result = new ArrayList<>();
 
-            //Check if any units contain corrupted animation
+            // ユニットの不足ファイル収集
             for(Unit unit : units) {
                 if (unit == null)
                     continue;
@@ -560,7 +574,7 @@ public abstract class PackData implements IndexContainer {
                 }
             }
 
-            //Check if any enemies contain corrupted animation
+            // 敵の不足ファイル収集
             for(Enemy enemy : enemies) {
                 if (enemy == null)
                     continue;
@@ -577,7 +591,7 @@ public abstract class PackData implements IndexContainer {
                 }
             }
 
-            //Check if any souls contain corrupted animation
+            // 魂の不足ファイル収集
             for (Soul soul : souls) {
                 if (soul == null)
                     continue;

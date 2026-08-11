@@ -26,6 +26,10 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 複数の編成と共有する宝物設定を1セットとして保存・復元する。
+ * 生成・複製時に自身を全体一覧と現在選択へ登録するため、コンストラクターは大域状態を変更する。
+ */
 @JsonClass
 public class BasisSet extends Basis implements Copable<BasisSet> {
 
@@ -56,18 +60,18 @@ public class BasisSet extends Basis implements Copable<BasisSet> {
 	}
 
 	/**
-	 * Synchronize lineup's orb data with stat change
-	 * @param u Current unit, must be custom unit or it won't do anything
+	 * カスタムユニットの能力変更に合わせ、全保存編成から利用不能になった条件付き本能玉を除く。
+	 * @param u 対象ユニット。公式ユニットの場合は何もしない
 	 */
 	public static void synchronizeOrb(Unit u) {
-		//No need to change BC unit's orb status
+		// 公式ユニットの本能玉設定は同期対象外
 		if (u == null || u.id.pack.equals(Identifier.DEF))
 			return;
 
 		for(BasisSet set : list()) {
 			for(BasisLU lu : set.lb) {
 				for(Identifier<Unit> id : lu.lu.map.keySet()) {
-					if(id.equals(u.id)) { // todo: check if you can just use lu.lu.map.get(u.id)
+					if(id.equals(u.id)) { // TODO: lu.lu.map.get(u.id) だけでよいか確認する
 						Level l = lu.lu.map.get(id);
 
 						if(l.getOrbs() != null) {
@@ -224,7 +228,7 @@ public class BasisSet extends Basis implements Copable<BasisSet> {
 	}
 
 	/**
-	 * BasisSet are used in data display, so cannot be effected by combo
+	 * 表示用セットにはコンボ補正を適用しない。
 	 */
 	@Override
 	public int getInc(int type) {

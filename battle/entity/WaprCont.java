@@ -7,6 +7,10 @@ import common.util.anim.EAnimD;
 import common.util.anim.EAnimU;
 import common.util.pack.EffAnim.WarpEff;
 
+/**
+ * ワープ出入口のエフェクトと対象実体の切り抜き表示を同期する。
+ * 出口では汎用完了判定ではなく、キャラクター側アニメーションの終端直前を完了条件にする。
+ */
 public class WaprCont extends EAnimCont {
 
 	private final WarpEff type;

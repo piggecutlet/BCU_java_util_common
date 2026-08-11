@@ -18,11 +18,18 @@ import common.util.unit.Level;
 
 import java.util.TreeMap;
 
+/**
+ * 編成へ適用する基本レベル、プラス値、本能、オーブの上限定義。
+ * 全体、レアリティ、キャラグループの順に候補を絞り、併合時は厳しい側の上限を採用する。
+ */
 @IndexCont(PackData.class)
 @JsonClass(noTag = NoTag.LOAD)
 @JsonClass.JCGeneric(Identifier.class)
 public class LvRestrict extends Data implements Indexable<PackData, LvRestrict> {
 
+	/**
+	 * キャラグループ固有のレベル系列とオーブ上限。
+	 */
 	@JsonClass(noTag = NoTag.LOAD)
 	public static class GroupRestrict {
 		public int[] lv;
@@ -161,6 +168,10 @@ public class LvRestrict extends Data implements Indexable<PackData, LvRestrict> 
 		return false;
 	}
 
+	/**
+	 * フォームに適用可能な最大レベルを各制限定義の最小値から算出する。
+	 * グループ制限が1件でも一致した場合、レアリティ制限と全体制限は適用しない。
+	 */
 	public Level valid(Form f) {
 		int[] lv = MAX.clone();
 

@@ -6,6 +6,10 @@ import common.io.json.JsonField;
 import common.system.BasedCopable;
 import common.util.Data;
 
+/**
+ * 敵出現グループの同時出現上限を星数別に定義する値。
+ * 値が未指定の星は直前の星の上限へ再帰的にフォールバックする。
+ */
 @JsonClass
 public class SCGroup extends Data implements BasedCopable<SCGroup, Integer> {
 

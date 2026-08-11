@@ -12,6 +12,10 @@ import common.util.pack.EffAnim.VolcEff;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 烈波の開始・持続・終了アニメーションと攻撃判定の寿命を進行させる。
+ * 発生後に攻撃元が呪い・封印された場合も、その状態変化に合わせて持続攻撃の能力を再評価する。
+ */
 public class ContVolcano extends ContAb {
 	public final List<AbEntity> surgeSummoned = new ArrayList<>();
 
@@ -26,9 +30,9 @@ public class ContVolcano extends ContAb {
 
 	private int t = 0;
 	private final int ind;
-	private final boolean[] performed = new boolean[4]; // [0,1] - check if curse/seal rng has passed, [2,3] - check if unit process needs to be updated
+	private final boolean[] performed = new boolean[4]; // [0,1]: 呪い・封印対象能力の抽選済み、[2,3]: 現在の反映状態
 
-	//For counter surge
+	// 反射烈波用
 	public ContVolcano(AttackVolcano v, float p, int lay, int alive, int ind) {
 		super(v.model.b, p, lay);
 
@@ -173,7 +177,7 @@ public class ContVolcano extends ContAb {
 		if (!CommonStatic.getConfig().ref)
 			return;
 
-		// after this is the drawing of hit boxes
+		// 以降は当たり判定のデバッグ描画
 		siz *= 1.25f;
 		float rat = BattleConst.ratio;
 		int h = (int) (640 * rat * siz);

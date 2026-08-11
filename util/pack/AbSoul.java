@@ -5,6 +5,10 @@ import common.util.Animable;
 import common.util.anim.AnimU;
 import common.util.anim.EAnimI;
 
+/**
+ * 消滅時などに再生する魂アニメーションの共通基底型。
+ * 識別子と表示名の決定は、既定魂・悪魔魂などの具象型に委ねる。
+ */
 public abstract class AbSoul extends Animable<AnimU<?>, AnimU.UType> {
 
     public AbSoul(AnimU<?> animS) {

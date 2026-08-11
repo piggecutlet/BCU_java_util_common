@@ -12,8 +12,15 @@ import java.util.Map;
 
 import common.io.assets.Admin.StaticPermitted;
 
+/**
+ * JSON注入時のフィールド処理順を{@link Order}で指定し、クラス単位でキャッシュする。
+ * 指定のないフィールドは指定済みフィールドより後へ配置される。
+ */
 public class FieldOrder implements Comparable<FieldOrder> {
 
+	/**
+	 * 同じ宣言クラス内でのJSON注入優先順位。小さい値ほど先に処理される。
+	 */
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

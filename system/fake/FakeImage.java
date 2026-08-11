@@ -10,8 +10,15 @@ import common.system.files.FileData;
 import common.system.files.VFile;
 import common.util.Data;
 
+/**
+ * CPU画像とOpenGL画像を同じ呼び出し側から扱うための画像抽象。
+ * {@link #bimg()}と{@link #gl()}のどちらが利用可能かは描画基盤の実装に依存する。
+ */
 public interface FakeImage {
 
+	/**
+	 * 遅延読み込み時の画像表現や再着色処理を選択するための用途マーカー。
+	 */
 	enum Marker {
 		BG, EDI, UNI, RECOLOR, RECOLORED
 	}

@@ -11,6 +11,11 @@ import javax.annotation.Nullable;
 import java.io.PrintStream;
 import java.util.Queue;
 
+/**
+ * 1つのアニメーション種別を構成するタイムライン。
+ * 複数の {@link Part} を同じ時刻で評価し、各トラック固有の開始位置、オフセット、ループ回数を適用した後、
+ * 変更後のZ値で実行時部品の描画順を更新する。
+ */
 public class MaAnim extends Data implements BattleStatic {
 
 	public static MaAnim newIns(FileData f, boolean isOld) {
@@ -121,6 +126,7 @@ public class MaAnim extends Data implements BattleStatic {
 	}
 
 	protected void update(float f, EAnimD<?> eAnim, boolean rotate) {
+		// 全体ループ時は共有タイムラインの終端を含む長さで時刻を折り返す。
 		if (rotate)
 			f %= max + 1;
 

@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * 1回の攻撃判定に必要な攻撃力、範囲、対象、能力、生成元を保持する基底型。
+ * 捕捉と適用を分離し、適用前に捕捉対象を順に走査して同じ能力値を妨害無効率に応じて更新する。
+ */
 public abstract class AttackAb extends BattleObj {
 
 	public final int rawAtk, abi;
@@ -71,12 +75,12 @@ public abstract class AttackAb extends BattleObj {
 	}
 
 	/**
-	 * capture the entities
+	 * 現在の範囲から対象を捕捉する。
 	 */
 	public abstract void capture();
 
 	/**
-	 * apply this attack to the entities captured
+	 * 捕捉済みの対象へ攻撃を適用する。
 	 */
 	public abstract void excuse();
 

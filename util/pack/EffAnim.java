@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * 状態異常・攻撃能力などの共通エフェクトアニメーションを、種別ごとのファイル接尾辞とともに管理する。
+ *
+ * @param <T> 一つの画像・モデル資源から選ぶエフェクト種別
+ */
 public class EffAnim<T extends Enum<T> & EffAnim.EffType<T>> extends AnimD<EffAnim<T>, T> {
 
 	public enum ArmorEff implements EffType<ArmorEff> {
@@ -136,6 +141,10 @@ public class EffAnim<T extends Enum<T> & EffAnim.EffType<T>> extends AnimD<EffAn
 		}
 	}
 
+	/**
+	 * 読み込んだ共通エフェクトを保持する共有ストア。
+	 * Order は {@link Data} の旧エフェクト配列との互換順であり、フィールド宣言順だけに依存してはならない。
+	 */
 	public static class EffAnimStore {
 
 		@Order(0)
@@ -171,13 +180,13 @@ public class EffAnim<T extends Enum<T> & EffAnim.EffType<T>> extends AnimD<EffAn
 		@Order(15)
 		public EffAnim<DefEff> A_E_WAVE_STOP;
 		@Order(16)
-		public EffAnim<DefEff> A_WAVEGUARD;// unused
+		public EffAnim<DefEff> A_WAVEGUARD;// 未使用
 		@Order(17)
-		public EffAnim<DefEff> A_E_WAVEGUARD;// unused
+		public EffAnim<DefEff> A_E_WAVEGUARD;// 未使用
 		@Order(18)
 		public EffAnim<DefEff> A_EFF_INV;
 		@Order(19)
-		public EffAnim<DefEff> A_EFF_DEF;// unused
+		public EffAnim<DefEff> A_EFF_DEF;// 未使用
 		@Order(20)
 		public EffAnim<DefEff> A_Z_STRONG;
 		@Order(21)
@@ -289,7 +298,7 @@ public class EffAnim<T extends Enum<T> & EffAnim.EffType<T>> extends AnimD<EffAn
 		@Order(76)
 		public EffAnim<DefEff> A_E_COUNTERSURGE;
 		@Order(77)
-		public EffAnim<GuardEff> A_E_GUARD; // Dummy "yet"
+		public EffAnim<GuardEff> A_E_GUARD; // 現時点ではダミー
 		@Order(78)
 		public EffAnim<DefEff> A_METAL_KILLER;
 		@Order(79)
@@ -747,13 +756,13 @@ public class EffAnim<T extends Enum<T> & EffAnim.EffType<T>> extends AnimD<EffAn
 
 	@Override
 	public boolean cantLoadAll(AnimU.ImageKeeper.AnimationType type) {
-		// Effect animation is part of BC animation, there must not be failure
+		// ゲーム本体の共通エフェクト資源であり、欠落を許容する対象にしない
 		return false;
 	}
 
 	@Override
 	public List<String> collectInvalidAnimation(AnimU.ImageKeeper.AnimationType type) {
-		// Effect animation is part of BC animation, there must not be failure
+		// ゲーム本体の共通エフェクト資源であり、無効アニメーションとして収集しない
 		return new ArrayList<>();
 	}
 

@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 白い円を雪粒として生成し、ランダムな傾きと速度で斜め下へ流す前景効果。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class SnowBGEffect extends BackgroundEffect{
     private static final int sw = 12;
@@ -65,7 +68,7 @@ public class SnowBGEffect extends BackgroundEffect{
                 capture.add(i);
             } else {
                 snowPosition.get(i).y += speed.get(i);
-                //slope(y - initY) + initX = x
+                // x = slope * (y - 初期Y) + 初期X
                 snowPosition.get(i).x = revertP(slope.get(i) * (snowPosition.get(i).y - initPos.get(i).y)) + initPos.get(i).x;
             }
         }
@@ -80,10 +83,10 @@ public class SnowBGEffect extends BackgroundEffect{
                 initPos.get(capture.get(i)).x = x;
                 initPos.get(capture.get(i)).y = y;
 
-                //0 ~ 75
+                // 0～74度
                 float angle = (float) Math.toRadians(r.nextInt(75));
 
-                //-0.5angle + 1 is stabilizer
+                // 角度に応じて落下速度を補正
                 if (CommonStatic.getConfig().performanceModeBattle) {
                     speed.set(capture.get(i), (float) ((Data.BG_EFFECT_SNOW_SPEED - r.nextInt(Data.BG_EFFECT_SNOW_SPEED - 3)) * (-0.75 * angle / maxSlope + 1)) / 2f);
                 } else {
@@ -110,10 +113,10 @@ public class SnowBGEffect extends BackgroundEffect{
             snowPosition.add(P.newP(x, y));
             initPos.add(P.newP(x, y));
 
-            //0~75
+            // 0～74度
             float angle = (float) Math.toRadians(r.nextInt(75));
 
-            //-0.5angle + 1 is stabilizer
+            // 角度に応じて落下速度を補正
             if (CommonStatic.getConfig().performanceModeBattle) {
                 speed.add((float) ((Data.BG_EFFECT_SNOW_SPEED - r.nextInt(Data.BG_EFFECT_SNOW_SPEED - 3)) * (-0.75 * angle / maxSlope + 1)) / 2f);
             } else {

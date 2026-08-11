@@ -23,15 +23,23 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * ステージマップ群を供給元単位で束ねる定義コンテナ。
+ * 文字列SIDが組み込みコレクション、ユーザーパック、クリップボードを区別し、
+ * 実戦中の状態は保持しない。
+ */
 @JsonClass(read = RType.FILL)
 public abstract class MapColc extends Data implements IndexContainer.SingleIC<StageMap> {
 
+	/**
+	 * 公式データから読み込まれるステージコレクション。
+	 */
 	public static class DefMapColc extends MapColc {
 
 		private static final String REG_IDMAP = "DefMapColc_idmap";
 
 		/**
-		 * get a BC stage
+		 * 公式の通しマップIDをコレクション番号とコレクション内番号へ分解して取得する。
 		 */
 		public static StageMap getMap(int mid) {
 			Map<String, MapColc> map = UserProfile.getRegister(REG_MAPCOLC, MapColc.class);
@@ -427,7 +435,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 						JsonArray parameter = parameterData.getAsJsonArray("Parameters");
 
 						switch (ruleID) {
-							// Max Money
+							// 所持金上限
 							case 0:
 								if (!parameter.isEmpty()) {
 									if (parameter.size() != 1)
@@ -461,7 +469,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 								}
 
 								break;
-							// Global Cooldown
+							// 全キャラ共通の再生産時間
 							case 1:
 								if (!parameter.isEmpty()) {
 									if (parameter.size() != 1)
@@ -493,7 +501,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 								}
 
 								break;
-							// Rarity deploy limit
+							// レアリティ別の出撃上限
 							case 3:
 								if (!parameter.isEmpty()) {
 									int[] deployLimit = new int[parameter.size()];
@@ -536,7 +544,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 								}
 
 								break;
-							// Global Cost
+							// 全キャラ共通の生産コスト
 							case 4:
 								if (!parameter.isEmpty()) {
 									if (parameter.size() != 1)
@@ -557,7 +565,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 								}
 
 								break;
-							// Cost Multiplier
+							// 生産コスト倍率
 							case 5:
 								if (!parameter.isEmpty()) {
 									int[] multiplier = new int[parameter.size()];
@@ -566,7 +574,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 										multiplier[i] = parameter.get(i).getAsInt();
 									}
 
-									// To make program warn only once
+									// 警告を一度だけ出すためのフラグ
 									boolean warned = false;
 
 									for (Stage stage : map.list) {
@@ -593,7 +601,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 								}
 
 								break;
-							// Cooldown Multiplier
+							// 再生産時間倍率
 							case 6:
 								if (!parameter.isEmpty()) {
 									int[] multiplier = new int[parameter.size()];
@@ -602,7 +610,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 										multiplier[i] = parameter.get(i).getAsInt();
 									}
 
-									// To make program warn only once
+									// 警告を一度だけ出すためのフラグ
 									boolean warned = false;
 
 									for (Stage stage : map.list) {
@@ -629,7 +637,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 								}
 
 								break;
-							// Max spawn units
+							// 同時出撃数上限
 							case 7:
 								if (!parameter.isEmpty()) {
 									if (parameter.size() > 1) {
@@ -767,7 +775,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 				}
 			}
 
-			// dojos with score bonuses
+			// スコア加算規則を持つ道場
 			VFile scoreBonus = VFile.get("./org/data/ScoreBonusMap.json");
 			String specialScore = new String(scoreBonus.getData().getBytes());
 			JsonElement scoreElement = JsonParser.parseString(specialScore);
@@ -832,7 +840,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 				}
 			}
 
-			// Battle preset
+			// 固定編成
 			qs = VFile.readLine("./org/data/fixed_formation.csv");
 
 			if (qs != null) {
@@ -1194,7 +1202,7 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 						}
 					}
 
-					//validation
+					// 読み込んだお宝値を実装上限へ収める
 					for (int j = 0; j < MT.length; j++) {
 						if (targetStage.preset.trea[j] > MT[j]) {
 							System.out.printf("W/MapColc::read - Treasure value out of range : %d, %d\n", j, targetStage.preset.trea[j]);
@@ -1466,6 +1474,10 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 		}
 	}
 
+	/**
+	 * ユーザーパックに所有されるステージコレクション。
+	 * 読み込み後に旧形式の制限定義を現行形式へ移行する。
+	 */
 	@JsonClass
 	public static class PackMapColc extends MapColc {
 
@@ -1569,6 +1581,9 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 		}
 	}
 
+	/**
+	 * 登録済み全コレクションをまたいでステージ定義を走査する反復子。
+	 */
 	public static class StItr implements Iterator<Stage>, Iterable<Stage> {
 
 		private Iterator<MapColc> imc;
@@ -1618,6 +1633,9 @@ public abstract class MapColc extends Data implements IndexContainer.SingleIC<St
 		}
 	}
 
+	/**
+	 * 編集用クリップボードだけで使う一時コレクション。
+	 */
 	public static class ClipMapColc extends MapColc {
 
 		protected ClipMapColc() {

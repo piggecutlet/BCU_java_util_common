@@ -4,6 +4,10 @@ import java.util.function.BiFunction;
 import common.pack.Context;
 import common.system.P;
 
+/**
+ * BCUバイナリ形式のプリミティブ値をリトルエンディアンで相互変換する基盤。
+ * {@code int[]}による読み取り表現では、各要素を符号なし1バイトとして扱う。
+ */
 public abstract class DataIO {
 
 	protected static final byte BYTE = 1;
@@ -28,7 +32,7 @@ public abstract class DataIO {
 	}
 
 	/**
-	 * write a number n into a byte[] start from index
+	 * 指定位置から数値をリトルエンディアンで書き込む。
 	 */
 
 	public static void fromByte(byte[] b, int index, byte n) {
@@ -82,7 +86,7 @@ public abstract class DataIO {
 	}
 
 	/**
-	 * read a number from a byte[] start from index
+	 * 指定位置から符号なしバイト列として保持された数値を読み取る。
 	 */
 
 	public static int toByte(int[] datas, int index) {
@@ -129,7 +133,7 @@ public abstract class DataIO {
 	}
 
 	/**
-	 * translate byte[] to int[] in order to make all the bytes unsigned
+	 * 符号付きの各{@code byte}を0から255の値へ変換する。
 	 */
 
 	public static int[] translate(byte[] datas) {

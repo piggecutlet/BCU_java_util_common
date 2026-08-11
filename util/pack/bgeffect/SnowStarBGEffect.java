@@ -6,6 +6,10 @@ import common.system.fake.FakeGraphics;
 import common.util.Data;
 import common.util.pack.Background;
 
+/**
+ * 共有の星効果を後景、雪効果を前景として組み合わせる複合背景効果。
+ * 状態は共有アセット内の各効果インスタンスに保持される。
+ */
 public class SnowStarBGEffect extends BackgroundEffect {
     @Override
     public void check() {

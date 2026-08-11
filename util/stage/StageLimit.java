@@ -7,6 +7,10 @@ import common.util.Data;
 
 import java.util.HashSet;
 
+/**
+ * ステージ全体へ適用する生産、出撃、速度、コンボ、オーブの制限定義。
+ * 無効値は項目ごとに0または-1で表し、{@link #combine(StageLimit)}では代替側の有効値を優先する。
+ */
 @JsonClass(noTag = JsonClass.NoTag.LOAD)
 public class StageLimit extends Data implements BattleStatic, Cloneable {
     public static boolean isComboBanned(Limit lim, int comboId) {
@@ -16,6 +20,9 @@ public class StageLimit extends Data implements BattleStatic, Cloneable {
             return lim.stageLimit.bannedCatCombo.contains(comboId);
     }
 
+    /**
+     * 速度値を固定値として設定するか、パーセント倍率として乗算するかの指定。
+     */
     public enum SpeedOverrideMode {
         SET("=", ""),
         MULTIPLY("x", "%");
@@ -49,19 +56,19 @@ public class StageLimit extends Data implements BattleStatic, Cloneable {
 
     public int[] cooldownMultiplier = { 100, 100, 100, 100, 100, 100 };
     public int[] costMultiplier = { 100, 100, 100, 100, 100, 100 };
-    public int[] rarityDeployLimit = { -1, -1, -1, -1, -1, -1 }; // -1 for none
+    public int[] rarityDeployLimit = { -1, -1, -1, -1, -1, -1 }; // -1は制限なし
 
-    public int[] deployDuplicationTimes = { 0, 0, 0, 0, 0, 0 }; // 0 for deactivated
-    public int[] deployDuplicationDelay = { 0, 0, 0, 0, 0, 0 }; // unit is frame
+    public int[] deployDuplicationTimes = { 0, 0, 0, 0, 0, 0 }; // 0は無効
+    public int[] deployDuplicationDelay = { 0, 0, 0, 0, 0, 0 }; // 単位はフレーム
 
     public boolean coolStart = false;
     
-    public int cannonMultiplier = 100; // percentage
+    public int cannonMultiplier = 100; // パーセント
 
     public SpeedOverrideMode unitSpeedOverrideMode = null;
-    public int unitSpeedOverride = -1; // -1 for deactivated
+    public int unitSpeedOverride = -1; // -1は無効
     public SpeedOverrideMode enemySpeedOverrideMode = null;
-    public int enemySpeedOverride = -1; // -1 for deactivated
+    public int enemySpeedOverride = -1; // -1は無効
 
     @JsonField(generic = Integer.class)
     public HashSet<Integer> bannedCatCombo = new HashSet<>();

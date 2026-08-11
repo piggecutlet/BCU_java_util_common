@@ -4,6 +4,9 @@ import common.util.unit.Enemy;
 
 import java.util.List;
 
+/**
+ * 敵の前後移動用ノードに、体力倍率と攻撃力倍率を対応付ける。
+ */
 public class ENode extends Node<Enemy> {
 
     public ENode(Enemy v) {

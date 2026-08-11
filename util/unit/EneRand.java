@@ -17,6 +17,10 @@ import common.util.EntRand;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * 複数の固定敵または別のランダム敵集合から、戦闘時に1候補を選ぶ敵定義。
+ * 識別子は固定敵と共通の{@link AbEnemy}名前空間を使い、候補展開では循環参照を打ち切る。
+ */
 @JsonClass.JCGeneric(Identifier.class)
 @JsonClass
 public class EneRand extends EntRand<Identifier<AbEnemy>> implements AbEnemy {
@@ -53,6 +57,9 @@ public class EneRand extends EntRand<Identifier<AbEnemy>> implements AbEnemy {
 		}
 	}
 
+	/**
+	 * 戦闘の乱数状態で候補を選び、候補固有倍率を元倍率へ乗算して実体化する。
+	 */
 	@Override
 	public EEnemy getEntity(StageBasis sb, Object obj, float mul, float mul2, int d0, int d1, int m, int l) {
 		sb.rege.add(this);

@@ -1,5 +1,9 @@
 package common.battle.data;
 
+/**
+ * 公式データの最大3回攻撃を固定フィールドと攻撃順配列で表す基底実装。
+ * 2回目以降の予備動作時間はCSVの累積値から差分へ変換して公開する。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public abstract class DefaultData extends DataEntity {
 

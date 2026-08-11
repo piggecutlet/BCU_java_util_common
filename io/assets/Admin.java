@@ -25,9 +25,15 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.Consumer;
 
+/**
+ * GUI環境に依存せず資産パックを作成・展開し、静的フィールド規約を監査する管理用入口。
+ */
 @StaticPermitted
 public class Admin {
 
+	/**
+	 * 管理コマンド向けの固定相対パスと標準出力によるエラー処理を提供する実行コンテキスト。
+	 */
 	public static class AdminContext implements Context {
 
 		@Override
@@ -121,6 +127,9 @@ public class Admin {
 
 	}
 
+	/**
+	 * 静的フィールド監査から型またはフィールドを除外し、保持理由を分類する標識。
+	 */
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.TYPE, ElementType.FIELD })

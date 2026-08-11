@@ -16,6 +16,10 @@ import common.util.pack.Background;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * 背景効果の資源確認、初期化、更新、および前景・後景描画を定義する基底型。
+ * 組み込み効果は共有アセットに一つずつ保持されるため、initialize() で戦闘ごとの可変状態を必ず初期化する。
+ */
 @JsonClass.JCGeneric(Identifier.class)
 @JsonClass
 public abstract class BackgroundEffect {
@@ -113,33 +117,32 @@ public abstract class BackgroundEffect {
         }, Context.ErrType.FATAL, "Failed to read bg effect data");
     }
 
-    /**
-     * Load image or any data here
-     */
+    /** 必要な画像やデータを利用可能な状態にする。 */
     public abstract void check();
 
     /**
-     * Effects which will be drawn behind entities
-     * @param g Canvas
-     * @param rect (x,y) coordinate of battle
-     * @param siz size of battle
-     * @param midH how battle will be shifted along y-axis
+     * エンティティより後ろに効果を描画する。
+     * @param g 描画先
+     * @param rect 戦闘画面の座標
+     * @param siz 戦闘画面の拡大率
+     * @param midH Y 軸方向の表示補正
      */
     public abstract void preDraw(FakeGraphics g, P rect, final float siz, final float midH);
 
     /**
-     * Effects which will be drawn in front of entities
-     * @param g Canvas
-     * @param rect (x,y) coordinate of battle
-     * @param siz size of battle
-     * @param midH how battle will be shifted along y-axis
+     * エンティティより前に効果を描画する。
+     * @param g 描画先
+     * @param rect 戦闘画面の座標
+     * @param siz 戦闘画面の拡大率
+     * @param midH Y 軸方向の表示補正
      */
     public abstract void postDraw(FakeGraphics g, P rect, final float siz, final float midH);
 
     /**
-     * Update data here
-     * @param w Width of battlefield as P
-     * @param h Height of battlefield as Px
+     * 効果の可変状態を1回更新する。
+     * @param w 戦闘座標系での幅
+     * @param h ピクセル座標系での高さ
+     * @param midH Y 軸方向の表示補正
      */
     public abstract void update(int w, float h, float midH);
 
@@ -148,9 +151,11 @@ public abstract class BackgroundEffect {
     }
 
     /**
-     * Initialize data here
-     * @param w Width of battlefield as P
-     * @param h Height of battlefield as Px
+     * 戦闘開始時の可変状態を初期化する。
+     * @param w 戦闘座標系での幅
+     * @param h ピクセル座標系での高さ
+     * @param midH Y 軸方向の表示補正
+     * @param bg この効果を使用する背景
      */
     public abstract void initialize(int w, float h, float midH, Background bg);
 
@@ -159,10 +164,10 @@ public abstract class BackgroundEffect {
     }
 
     /**
-     * Convert battle unit to pixel unit
-     * @param p Position in battle
-     * @param siz Size of battle
-     * @return Converted pixel
+     * 戦闘座標を描画ピクセルへ変換する。
+     * @param p 戦闘座標
+     * @param siz 戦闘画面の拡大率
+     * @return 変換後のピクセル値
      */
     protected int convertP(float p, float siz) {
         return (int) (p * CommonStatic.BattleConst.ratio * siz);

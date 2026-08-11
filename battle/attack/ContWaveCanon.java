@@ -10,11 +10,15 @@ import common.util.pack.NyCastle.NyType;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * にゃんこ砲の波動を、砲種別のアニメーションと連鎖位置で進行させる。
+ * 波動無効対象に触れると、共有集合に属する連鎖全体を停止する。
+ */
 public class ContWaveCanon extends ContWaveAb {
 
 	private final int canid;
 
-	// used only by normal and zombie cannon
+	// 通常砲とゾンビ砲だけが使用する
 	public ContWaveCanon(AttackWave a, float p, int id) {
 		super(a, p, CommonStatic.getBCAssets().atks[id].getEAnim(NyType.ATK), 9, -3);
 		canid = id;
@@ -22,7 +26,7 @@ public class ContWaveCanon extends ContWaveAb {
 
 		waves = new HashSet<>();
 		waves.add(this);
-		// hitframe offset + (waves attack period) * (number of waves - 1) + ending linger
+		// 命中フレーム補正 + 波動間隔 * 後続波数 + 終了後の残留時間
 		maxt = 3 + (W_TIME + 1) * (a.proc.WAVE.lv + 1 - 1) + 4;
 
 		if (id != 0) {
@@ -66,9 +70,8 @@ public class ContWaveCanon extends ContWaveAb {
 	@Override
 	public void update() {
 		tempAtk = false;
-		// guessed attack point compared from BC
+		// 本家との比較から推測した攻撃フレーム
 		int attack = 2;
-		// guessed wave block time compared from BC
 		if (t == 0)
 			CommonStatic.setSE(soundEffect);
 		if (t >= 1 && t <= attack) {

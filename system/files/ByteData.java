@@ -5,6 +5,9 @@ import java.io.InputStream;
 
 import common.system.fake.FakeImage;
 
+/**
+ * バイト配列を実体とする{@link FileData}向けに、画像・ストリーム・サイズへの変換を補う。
+ */
 interface ByteData extends FileData {
 
 	@Override

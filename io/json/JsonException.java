@@ -2,6 +2,9 @@ package common.io.json;
 
 import com.google.gson.JsonElement;
 
+/**
+ * BCUのJSON注釈規約、型、生成関数の不整合を表す検査例外。
+ */
 public class JsonException extends Exception {
 
 	public enum Type {

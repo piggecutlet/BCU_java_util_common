@@ -6,23 +6,27 @@ import common.util.unit.Trait;
 
 import java.util.List;
 
+/**
+ * 戦場で攻撃対象となる実体の共通契約。
+ * 現在HP・位置・陣営を保持し、更新を移動処理と反応処理の2段階に分けてステージから呼び出される。
+ */
 public abstract class AbEntity extends BattleObj {
 
 	/**
-	 * health = Unit's current health.
-	 * maxH = Unit's maximum HP. Used to limit healing and any effects that require % of Entity's HP.
+	 * {@code health} は現在HP、{@code maxH} は最大HP。
+	 * 最大HPは回復上限とHP割合効果の基準にも使う。
 	 */
 	public long health, maxH;
 	/**
-	 * Direction/Faction of entity. -1 is Cat unit, 1 is Enemy Unit
+	 * 陣営と進行方向。-1は味方、1は敵。
 	 */
 	public int dire;
 	/**
-	 * Current Position of this Entity
+	 * 現在位置。
 	 */
 	public float pos;
 	/**
-	 * Last position where entity moved without interruption
+	 * 割り込みを受けずに移動した最後の位置。
 	 */
 	public float lastPosition;
 

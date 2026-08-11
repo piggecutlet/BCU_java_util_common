@@ -23,9 +23,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+/**
+ * ワークスペースで編集、履歴管理、保存できるアニメーション資源。
+ * 編集内容は可変なモデル一式に直接反映され、{@link #unSave(String)} が未保存化とUndoスナップショット作成を担う。
+ * 通常保存、画像単位の保存、自動保存は別経路であり、Undo履歴には画像データを含まない。
+ */
 @JsonClass.JCGeneric(ResourceLocation.class)
 public class AnimCE extends AnimCI {
 
+	/**
+	 * アニメーションデータとモデルツリー表示状態を保持するUndoスナップショット。
+	 */
 	private class History {
 
 		protected final OutStream data;
@@ -80,7 +88,7 @@ public class AnimCE extends AnimCI {
 	}
 
 	/**
-	 * for conversion only
+	 * 旧形式からの変換処理専用。
 	 */
 	@Deprecated
 	public AnimCE(Source.AnimLoader al) {
@@ -277,6 +285,10 @@ public class AnimCE extends AnimCI {
 		unSave("resize");
 	}
 
+	/**
+	 * 現在の履歴を破棄し、直前のスナップショットからモデルとタイムラインを復元する。
+	 * 画像そのものは復元せず、呼び出し側は初期履歴を残しておく必要がある。
+	 */
 	public void restore() {
 		history.pop();
 		InStream is = history.peek().data.translate();
@@ -311,6 +323,10 @@ public class AnimCE extends AnimCI {
 			new SourceAnimSaver(new ResourceLocation("_autosave", id.id, id.base == null ? Source.BasePath.ANIM : id.base), this).saveData();
 	}
 
+	/**
+	 * 読込済みかつ未保存の場合に全データと画像を保存する。
+	 * 保存開始前に保存済みフラグを立て、保存側で報告された入出力失敗はこのフラグへ反映されない。
+	 */
 	public void save() {
 		if (!loaded || isSaved())
 			return;
@@ -374,6 +390,7 @@ public class AnimCE extends AnimCI {
 	}
 
 	private void copyFrom(AnimD<?, ?> ori) {
+		// モデルと各タイムライン、スプライトは複製するが、表示・配置アイコンは参照を引き継ぐ。
 		loaded = true;
 		partial = true;
 
@@ -455,6 +472,7 @@ public class AnimCE extends AnimCI {
 
 	@Override
 	public boolean equals(Object that) {
+		// パックとベース種別を含めず、ResourceLocationのID部分だけを同一性に使う。
 		if (that instanceof AnimCE) {
 			return this.id.id.equals(((AnimCE) that).id.id);
 		} else {

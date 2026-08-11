@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+/**
+ * 固定パスワードのBCUパックとして保存されるバックアップと、そのプロセス内一覧を管理する。
+ * 復元対象は設定値の照合時に一度だけ消費され、破損して読み込めないファイルは削除対象となる。
+ */
 public class Backup {
     public static void createBackup(@Nullable Consumer<Double> prog, @NotNull List<File> files) {
         if(CommonStatic.getConfig().maxBackup != 0 && backups.size() >= CommonStatic.getConfig().maxBackup) {
@@ -110,7 +114,7 @@ public class Backup {
 
         String[] dates = name.split("-");
 
-        return dates.length == 6; // todo: add a popup asking if user would like to rename incorrect format to current time
+        return dates.length == 6; // todo: 不正な形式を現在時刻へ改名するか確認するポップアップを追加
     }
 
     private static String getTimeStamp() {

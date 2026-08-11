@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * キー入力と予約操作を戦闘アクションへ変換し、同じフレームの操作ビット列をリプレイへ記録する。
+ * 2行表示と1行切替表示では、枠入力の探索順と記録ビットを分ける。
+ */
 public class SBCtrl extends BattleField {
 
 	private final FakeKey keys;
@@ -47,7 +51,7 @@ public class SBCtrl extends BattleField {
 	}
 
 	/**
-	 * process the user action
+	 * 現在フレームの入力を実行し、成功した操作を記録する。
 	 */
 	@Override
 	protected void actions() {
@@ -114,7 +118,7 @@ public class SBCtrl extends BattleField {
 						action.remove((Object) (sb.frontLineup * 5 + j));
 					}
 				for (int i = 0; i < 2; i++) {
-					int row = (i + sb.frontLineup) % 2; // check front row first, then back row
+					int row = (i + sb.frontLineup) % 2; // 表示中の行、背面の行の順に確認する
 					if (act_spawn(row, j, (b0 || b1) && row == sb.frontLineup) && (b0 || b1))
 						rec |= 1 << (row * 5 + j + 13);
 				}
@@ -129,6 +133,9 @@ public class SBCtrl extends BattleField {
 
 }
 
+/**
+ * 同一操作ビット列の連続フレームを値・回数の組へ圧縮する。
+ */
 class Recorder extends BattleObj {
 
 	private final List<Integer> recd = new ArrayList<>();

@@ -5,6 +5,10 @@ import common.battle.attack.AttackVolcano;
 import common.battle.attack.ContVolcano;
 import common.util.anim.EAnimD;
 
+/**
+ * 反烈波の予告演出を進行し、所定フレームで元の烈波範囲内に反射烈波を生成する。
+ * 攻撃生成と効果音のカウントダウンを独立して管理する。
+ */
 public class SurgeSummoner extends EAnimCont {
     private final Entity summoner;
     private final int time, sta, end, type;
@@ -30,7 +34,7 @@ public class SurgeSummoner extends EAnimCont {
             surge--;
 
             if (surge == 0) {
-                //Shoot surge
+                // 反射烈波を発生させる
                 int dire = summoner.dire;
                 int addp = sta + (int) (summoner.basis.r.nextFloat() * (end - sta));
                 float p0 = summoner.pos + dire * addp;

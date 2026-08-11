@@ -28,6 +28,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+/**
+ * 特殊効果の名称・ツールチップ・表示書式を言語別に読み込み、フィールド単位で提供する。
+ */
 @JsonClass(read = RType.MANUAL, write = WType.CLASS, generator = "gen", serializer = "ser")
 public class ProcLang {
 

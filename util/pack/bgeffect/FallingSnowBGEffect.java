@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 雪片画像を大きさと落下速度を変えて上端から下端へ流す前景効果。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class FallingSnowBGEffect extends BackgroundEffect {
     private final VImg snow;

@@ -16,13 +16,23 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 
+/**
+ * 更新メタデータとローカル資産を比較し、必要なダウンロード処理を構築する。
+ * 必須資産は{@link UserProfile}の共有レジストリへ登録され、実際の取得と置換は{@link Downloader}が担う。
+ */
 public class UpdateCheck {
 
+	/**
+	 * GitHub Contents APIが返すファイル識別情報。
+	 */
 	@JsonClass(noTag = NoTag.LOAD)
 	public static class ContentJson {
 		public String name, sha, download_url;
 	}
 
+	/**
+	 * 複数URLを順に試し、取得成功時は一時ファイルから対象への置換を試みた後に後処理を実行する単位。
+	 */
 	public static class Downloader {
 
 		public final String[] url;
@@ -74,9 +84,15 @@ public class UpdateCheck {
 
 	}
 
+	/**
+	 * 配布サーバーの更新一覧と、各クライアント向け配布条件を保持する応答形式。
+	 */
 	@JsonClass(noTag = NoTag.LOAD)
 	public static class UpdateJson {
 
+		/**
+		 * コア版と用途で適用可否を判定する資産パック情報。
+		 */
 		@JsonClass(noTag = NoTag.LOAD)
 		public static class AssetJson {
 
@@ -87,6 +103,9 @@ public class UpdateCheck {
 
 		}
 
+		/**
+		 * PC本体更新の版と公開区分。
+		 */
 		@JsonClass(noTag = NoTag.LOAD)
 		public static class JarJson {
 			public int ver;
@@ -94,12 +113,18 @@ public class UpdateCheck {
 			public boolean isRelease;
 		}
 
+		/**
+		 * Android更新の版とテスト区分。
+		 */
 		@JsonClass(noTag = NoTag.LOAD)
 		public static class ApkJson {
 			public String ver;
 			public boolean isTest;
 		}
 
+		/**
+		 * 表示対象のコア版範囲を持つ告知情報。
+		 */
 		@JsonClass(noTag = NoTag.LOAD)
 		public static class AnnouncementJson {
 			public String id;
@@ -210,7 +235,7 @@ public class UpdateCheck {
 		};
 	}
 
-	public static Downloader checkFont() { //If more fonts are added, it may need to be a list like the rest. For now it's like this because there is only one font
+	public static Downloader checkFont() { // フォントが増えた場合は他と同様にリスト化が必要かもしれない。現状は1件のみ
 		File fonts = CommonStatic.ctx.getAssetFile("./fonts/stage_font.otf");
 
 		if (!fonts.exists()) {
@@ -230,7 +255,7 @@ public class UpdateCheck {
 				for (File music : musicList)
 					if (music.getName().length() == 7 && music.getName().endsWith(".ogg")) {
 						int id = CommonStatic.parseIntN(music.getName());
-						if (id < count && id != -1) // prevents array index out of bounds
+						if (id < count && id != -1) // 配列範囲外を防止
 							exists[id] = true;
 					}
 			}

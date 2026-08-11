@@ -21,9 +21,16 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/**
+ * ステージの敵出現行と同時出現グループ制限を保持する定義。
+ * 出現残数や再出現待ち時間などの可変状態は{@link EStage}が別に保持する。
+ */
 @JsonClass
 public class SCDef implements Copable<SCDef> {
 
+	/**
+	 * 敵識別子、出現条件、倍率、再出現条件を表す1行分の元データ。
+	 */
 	@JsonClass(noTag = NoTag.LOAD)
 	public static class Line implements Cloneable {
 		public Identifier<AbEnemy> enemy;
@@ -125,6 +132,9 @@ public class SCDef implements Copable<SCDef> {
 		return -1;
 	}
 
+	/**
+	 * 敵の意思値による全体上限と、グループ別の星数上限を同時に検査する。
+	 */
 	public boolean allow(StageBasis sb, int val, AbEnemy en) {
 		Enemy e = null;
 

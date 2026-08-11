@@ -12,9 +12,16 @@ import common.util.stage.MapColc.PackMapColc;
 
 import java.util.*;
 
+/**
+ * 城画像を供給元ごとに固定インデックスで管理する定義コンテナ。
+ * 組み込み一覧とユーザーパック一覧を同じ文字列識別子のレジストリへ登録する。
+ */
 @JsonClass
 public abstract class CastleList extends FixIndexMap<CastleImg> implements IndexContainer {
 
+	/**
+	 * 組み込み画像ディレクトリから構成される城一覧。
+	 */
 	public static class DefCasList extends CastleList {
 
 		public final String str;
@@ -43,6 +50,9 @@ public abstract class CastleList extends FixIndexMap<CastleImg> implements Index
 		}
 	}
 
+	/**
+	 * ユーザーパックに所有される城一覧。
+	 */
 	@JsonClass(read = RType.FILL)
 	public static class PackCasList extends CastleList {
 

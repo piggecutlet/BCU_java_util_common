@@ -9,6 +9,10 @@ import common.util.Data;
 import common.util.anim.EAnimD;
 import common.util.pack.EffAnim;
 
+/**
+ * 爆破を内側・中間・外側の3段階の攻撃判定として時間差で進行させる。
+ * 各段階は独立した既命中集合を持ち、アニメーションと効果音の時刻を共有する。
+ */
 public class ContBlast extends ContAb {
     protected final AttackBlast[] atk = new AttackBlast[3];
     protected final EAnimD<EffAnim.BlastEff> anim;
@@ -30,7 +34,7 @@ public class ContBlast extends ContAb {
     @Override
     public void draw(FakeGraphics gra, P p, float psiz) {
         FakeTransform at = gra.getTransform();
-        P s = new P(atk[0].dire == -1 ? p.x + (100 * psiz) : p.x - (30 * psiz), p.y); // todo: correct offset for enemies
+        P s = new P(atk[0].dire == -1 ? p.x + (100 * psiz) : p.x - (30 * psiz), p.y); // TODO: 敵側の表示位置補正
         anim.draw(gra, s, psiz);
         P.delete(s);
         gra.setTransform(at);
@@ -43,14 +47,14 @@ public class ContBlast extends ContAb {
         siz *= 1.25f;
         float rat = CommonStatic.BattleConst.ratio;
         int h = (int) (640 * rat * siz);
-        float d0 = Math.min(atk[0].sta, atk[0].end); // leftmost point
+        float d0 = Math.min(atk[0].sta, atk[0].end); // 最左端
         int y = (int) p.y;
         gra.setColor(FakeGraphics.MAGENTA);
 
         for (int i = 0; i < 3; i++) {
             AttackBlast a = atk[i];
             if (i == 0 && t >= 10 && t < 25) {
-                float rawWidth = Math.abs(a.sta - a.end); // raw length
+                float rawWidth = Math.abs(a.sta - a.end); // 補正前の幅
                 int x = (int) ((d0 - pos) * rat * siz + p.x);
                 int w = (int) (rawWidth * rat * siz);
                 if (a.attacked)

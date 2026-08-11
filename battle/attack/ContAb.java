@@ -7,6 +7,10 @@ import common.util.BattleObj;
 
 import java.util.Comparator;
 
+/**
+ * 複数フレーム存続する攻撃・演出コンテナの基底型。
+ * 生成時にステージの保留一覧へ副作用として登録され、描画層順に更新される。
+ */
 public abstract class ContAb extends BattleObj {
 
 	protected final StageBasis sb;

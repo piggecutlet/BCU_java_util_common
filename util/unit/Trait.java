@@ -11,6 +11,10 @@ import common.util.Data;
 
 import java.util.*;
 
+/**
+ * 敵・味方の属性をパック内識別子で表す定義。
+ * 公式ビットマスクとの変換に加え、ユーザー属性は対象フォーム指定または全属性対象指定で追加判定される。
+ */
 @IndexContainer.IndexCont(PackData.class)
 @JsonClass.JCGeneric(Identifier.class)
 @JsonClass
@@ -126,6 +130,9 @@ public class Trait extends Data implements Indexable<PackData, Trait> {
         return new HashSet<>(traits).containsAll(TRAITED);
     }
 
+    /**
+     * 元の属性集合へ、フォーム個別指定または全公式属性対象のユーザー属性を追加する。
+     */
     public static List<Trait> getAllTraits(Form form, List<Trait> traits) {
         ArrayList<Trait> result = new ArrayList<>(traits);
         for (PackData.UserPack userPack : UserProfile.getUserPacks())

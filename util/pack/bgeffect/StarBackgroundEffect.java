@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 色と点滅周期をランダム化した小さな光点を、エンティティより後ろへ加算描画する星空効果。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class StarBackgroundEffect extends BackgroundEffect {
     private static final int[][] starColors = {

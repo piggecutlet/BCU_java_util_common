@@ -8,6 +8,10 @@ import common.util.pack.EffAnim.DefEff;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 通常波動・小波動を一定間隔で次の区間へ連鎖させる。
+ * 攻撃前に波動無効対象を検査し、検出時は同じ連鎖の全区間を停止する。
+ */
 public class ContWaveDef extends ContWaveAb {
 
 	protected ContWaveDef(AttackWave a, float p, int layer, int delay) {
@@ -34,9 +38,8 @@ public class ContWaveDef extends ContWaveAb {
 	public void update() {
 		tempAtk = false;
 		boolean isMini = atk.waveType == WT_MINI;
-		// guessed attack point compared from BC
+		// 本家との比較から推測した攻撃フレーム
 		int attack = (isMini ? 4 : 6);
-		// guessed wave block time compared from BC
 		if (t == 0)
 			CommonStatic.setSE(soundEffect);
 		if (t <= attack) {

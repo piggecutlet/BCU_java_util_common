@@ -14,6 +14,9 @@ import common.util.unit.Unit;
 
 import java.util.*;
 
+/**
+ * 対象ごとに言語別値を保持し、設定言語の優先順で利用可能な値を解決する。
+ */
 public class MultiLangCont<I, T> extends Lang {
 
 	public static class MultiLangStatics {

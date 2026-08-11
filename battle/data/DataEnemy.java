@@ -8,6 +8,10 @@ import common.util.pack.Soul;
 import common.util.unit.Enemy;
 import common.util.unit.Trait;
 
+/**
+ * 公式CSVの敵行を戦闘用の能力・属性・複数攻撃データへ展開する。
+ * 入力列数による旧形式との互換分岐を持ち、生成後は {@link MaskEnemy} として参照される。
+ */
 public class DataEnemy extends DefaultData implements MaskEnemy {
 
 	private final Enemy enemy;
@@ -21,7 +25,7 @@ public class DataEnemy extends DefaultData implements MaskEnemy {
 	}
 
 	public void fillData(String[] strs) {
-		//This function serves to gather BC enemy data and give them their stats accordingly, custom units don't really use this
+		// 公式の敵データ行を読み込む。カスタム敵はこの経路を使用しない
 		int[] ints = new int[strs.length];
 
 		for (int i = 0; i < strs.length; i++)
@@ -36,30 +40,30 @@ public class DataEnemy extends DefaultData implements MaskEnemy {
 		width = ints[8];
 		FixIndexMap<Trait> BCTraits = UserProfile.getBCData().traits;
 		if (ints[10] == 1)
-			//Red
+			// 赤い敵
 			traits.add(BCTraits.get(TRAIT_RED));
 		isrange = ints[11] == 1;
 		pre = ints[12];
 		if (ints[13] == 1)
-			//Floating
+			// 浮いてる敵
 			traits.add(BCTraits.get(TRAIT_FLOAT));
 		if (ints[14] == 1)
-			//Black
+			// 黒い敵
 			traits.add(BCTraits.get(TRAIT_BLACK));
 		if (ints[15] == 1)
-			//Metal
+			// メタルな敵
 			traits.add(BCTraits.get(TRAIT_METAL));
 		if (ints[16] == 1)
-			//White
+			// 無属性
 			traits.add(BCTraits.get(TRAIT_WHITE));
 		if (ints[17] == 1)
-			//Angel
+			// 天使
 			traits.add(BCTraits.get(TRAIT_ANGEL));
 		if (ints[18] == 1)
-			//Alien
+			// エイリアン
 			traits.add(BCTraits.get(TRAIT_ALIEN));
 		if (ints[19] == 1)
-			//Zombie
+			// ゾンビ
 			traits.add(BCTraits.get(TRAIT_ZOMBIE));
 		proc.KB.prob = ints[20];
 		proc.STOP.prob = ints[21];
@@ -105,10 +109,10 @@ public class DataEnemy extends DefaultData implements MaskEnemy {
 		proc.REVIVE.time = ints[46];
 		proc.REVIVE.health = ints[47];
 		if (ints[48] == 1)
-			//Witch
+			// 魔女
 			traits.add(BCTraits.get(TRAIT_WITCH));
 		if (ints[49] == 1)
-			//Base
+			// 敵城
 			traits.add(BCTraits.get(TRAIT_INFH));
 		loop = ints[50];
 		if (ints[52] == 2)
@@ -132,10 +136,10 @@ public class DataEnemy extends DefaultData implements MaskEnemy {
 		if (ints[70] == 1)
 			proc.IMUWARP.mult = 100;
 		if (ints[71] == 1)
-			//EVA
+			// 使徒
 			traits.add(BCTraits.get(TRAIT_EVA));
 		if (ints[72] == 1)
-			//Relic
+			// 古代種
 			traits.add(BCTraits.get(TRAIT_RELIC));
 		proc.CURSE.prob = ints[73];
 		proc.CURSE.time = ints[74];

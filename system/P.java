@@ -6,6 +6,11 @@ import common.util.BattleObj;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+/**
+ * 描画・戦闘計算で共有する可変2次元座標。
+ * {@link #newP(float, float)}で取得した一時座標は{@link #delete(P)}へ返却できるが、
+ * 返却後のインスタンスは再利用されるため参照してはならない。
+ */
 public class P extends BattleObj {
 
 	@StaticPermitted(StaticPermitted.Type.TEMP)
@@ -189,7 +194,7 @@ public class P extends BattleObj {
 		return this;
 	}
 
-	/* return this */
+	/* このインスタンスを返す */
 	public P setTo(P p) {
 		x = p.x;
 		y = p.y;

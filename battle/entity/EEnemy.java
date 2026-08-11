@@ -17,6 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 戦闘中の敵実体。
+ * 敵倍率と出現行を保持し、撃破時に敵データの報酬・出現行の道場得点を反映する。
+ * 味方能力と本能玉に応じた被ダメージ補正も適用する。
+ */
 public class EEnemy extends Entity {
 
 	public final int mark;
@@ -64,7 +69,7 @@ public class EEnemy extends Entity {
 
 				if (!(attack instanceof AttackSimple))
 					continue;
-				if (u.bountyGrade != -1) { // todo: verify what happens if two bounty orb cats kill one enemy at the same time in BC
+				if (u.bountyGrade != -1) { // TODO: 複数の単体撃破報酬玉持ちが同時撃破した場合の本家挙動を確認する
 					status[P_BOUNTY][0] += ORB_SINGLE_BOUNTY_MULT[u.bountyGrade];
 					u.bountyOrbCheck = true;
 				}
@@ -152,7 +157,7 @@ public class EEnemy extends Entity {
 
 		ans = critCalc(data.getTraits().contains(UserProfile.getBCData().traits.get(TRAIT_METAL)), ans, atk);
 
-		// Perform Orb
+		// 本能玉の攻撃補正を適用する
 		ans += EUnit.OrbHandler.getOrbAtk(atk, this);
 
 		return ans;
@@ -164,7 +169,7 @@ public class EEnemy extends Entity {
 		float minPos = ((MaskEnemy) data).getLimit();
 
 		if (mark >= 1)
-			ans = pos - (minPos + basis.boss_spawn); // guessed value compared to BC
+			ans = pos - (minPos + basis.boss_spawn); // 本家との比較から推測した値
 		else
 			ans = pos - minPos;
 		return Math.max(0, ans);

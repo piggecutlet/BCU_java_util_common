@@ -10,12 +10,16 @@ import common.util.Data.Proc.SUMMON;
 import common.util.stage.StageLimit;
 import common.util.unit.Level;
 
+/**
+ * 戦闘中の実体から攻撃値配列と能力発動状態を構築する基底モデル。
+ * 通常攻撃の後ろに特殊攻撃用スロットを確保し、各スロットの残り発動回数を消費して攻撃を生成する。
+ */
 public abstract class AtkModelEntity extends AtkModelAb {
 
 	/**
-	 * @param e The entity
-	 * @param d0 Level multiplication for EUnit, Magnification for EEnemy
-	 * @return returns AtkModelEntity with specified magnification values
+	 * @param e 敵実体
+	 * @param d0 敵の攻撃倍率
+	 * @return 敵用攻撃モデル。敵でなければ {@code null}
 	 */
 	public static AtkModelEntity getEnemyAtk(Entity e, float d0) {
 		if (e instanceof EEnemy) {
@@ -38,7 +42,7 @@ public abstract class AtkModelEntity extends AtkModelAb {
 	protected final BattleObj[] acs;
 	private final Proc[] sealed;
 
-	protected AtkModelEntity(Entity ent, float d0, float d1) { // enemy
+	protected AtkModelEntity(Entity ent, float d0, float d1) { // 敵
 		super(ent.basis);
 		e = ent;
 		data = e.data;
@@ -62,7 +66,7 @@ public abstract class AtkModelEntity extends AtkModelAb {
 		}
 	}
 
-	protected AtkModelEntity(Entity ent, float d0, float d1, PCoin pc, Level lv) { // cat
+	protected AtkModelEntity(Entity ent, float d0, float d1, PCoin pc, Level lv) { // 味方
 		super(ent.basis);
 		e = ent;
 		data = e.data;
@@ -112,7 +116,7 @@ public abstract class AtkModelEntity extends AtkModelAb {
 	}
 
 	/**
-	 * get the attack, for display only
+	 * 表示用の攻撃力を返す。
 	 */
 	public int getAtk() {
 		int ans = 0, temp = 0, c = 1;
@@ -131,7 +135,7 @@ public abstract class AtkModelEntity extends AtkModelAb {
 	}
 
 	/**
-	 * generate attack entity
+	 * 指定スロットの残り発動回数を消費して攻撃判定を生成する。
 	 */
 	public final AttackAb getAttack(int ind) {
 		if (act[ind] == 0)
@@ -144,7 +148,7 @@ public abstract class AtkModelEntity extends AtkModelAb {
 	}
 
 	/**
-	 * Generate death surge when this entity is killed and the surge procs
+	 * 撃破時烈波の発動結果に応じて通常烈波または小烈波を生成する。
 	 */
 	public void getDeathSurge(int d) {
 		if ((d & 1) > 0) {
@@ -182,7 +186,7 @@ public abstract class AtkModelEntity extends AtkModelAb {
 	}
 
 	/**
-	 * get the attack box for nth attack
+	 * 指定攻撃の絶対座標範囲を返す。
 	 */
 	public float[] inRange(int ind) {
 		int dire = e.dire;
@@ -211,7 +215,7 @@ public abstract class AtkModelEntity extends AtkModelAb {
 	}
 
 	/**
-	 * get the collide box bound
+	 * 接触判定の絶対座標範囲を返す。
 	 */
 	public float[] touchRange() {
 		int dire = e.dire;

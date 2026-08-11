@@ -17,10 +17,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 通常攻撃の対象捕捉とダメージ適用を行い、命中時に波動・烈波・爆破などの派生攻撃を生成する。
+ * 持続攻撃では既命中集合を保持し、単体攻撃では進行方向の最前列から1体を無作為に選ぶ。
+ */
 public class AttackSimple extends AttackAb {
 
 	/**
-	 * avoid attacking already attacked enemies for lasting attacks
+	 * 持続攻撃が同じ対象へ重複命中するのを防ぐ集合。
 	 */
 	private final Set<AbEntity> attacked = new HashSet<>();
 	private final boolean range;
@@ -111,7 +115,7 @@ public class AttackSimple extends AttackAb {
 	}
 
 	/**
-	 * Method to manually add a unit to an attack for counters.
+	 * 反撃対象を直接追加して即時に攻撃を適用する。
 	 */
 	public boolean counterEntity(Entity ce) {
 		isCounter = true;
@@ -125,8 +129,7 @@ public class AttackSimple extends AttackAb {
 	public void excuse() {
 		process();
 
-		//At this point, attacker must not be null if attack is sent from entity
-		//Thus we keep real "raw" attack, and change value such as weaken/strengthen here
+		// 実体由来の攻撃だけ、発射時点の強化・弱体化を基礎攻撃力へ反映する
 		if (attacker != null) {
 			int[][] status = attacker.status;
 			if (status[P_STRONG][0] != 0)
@@ -168,7 +171,7 @@ public class AttackSimple extends AttackAb {
 			if (proc.WAVE.inverted) {
 				p0 = model.getPos() + (dire * addp) + ((200 * (proc.WAVE.lv - 1)) * dire);
 			}
-			// generate a wave when hits somebody
+			// 命中時に波動を生成する
 
 			ContWaveDef wave = new ContWaveDef(new AttackWave(attacker, this, p0, wid, WT_WAVE), p0, layer, -3);
 

@@ -10,6 +10,10 @@ import common.util.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 公式CSVの味方ユニット行を戦闘用の能力・属性・複数攻撃データへ展開する。
+ * 列数による旧形式との互換分岐を持ち、複製時は可変な属性・能力・攻撃参照を作り直す。
+ */
 public class DataUnit extends DefaultData implements MaskUnit, Cloneable {
 
 	private final Form form;

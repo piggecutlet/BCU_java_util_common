@@ -10,6 +10,11 @@ import common.util.Data;
 import java.io.PrintStream;
 import java.util.*;
 
+/**
+ * アニメーションを構成する部品の初期値、親子階層、基準倍率を保持するモデル。
+ * タイムラインは部品インデックスを介してこのモデルを参照し、実行時には各行から {@link EPart} が作られる。
+ * {@link #clone()} は配列を複製するが、エディタの展開状態を持つ {@link #status} は引き継がない。
+ */
 public class MaModel extends Data implements Cloneable, BattleStatic {
 
 	public static MaModel newIns(FileData f) {
@@ -94,7 +99,7 @@ public class MaModel extends Data implements Cloneable, BattleStatic {
 	}
 
 	/**
-	 * regulate check imgcut id and detect parent loop
+	 * 画像分割IDと親IDを範囲内へ補正し、親子関係の循環を検出して該当部品をルートへ切り離す。
 	 */
 	public void check(AnimD<?, ?> anim) {
 		int ics = anim.imgcut.n;
@@ -217,7 +222,7 @@ public class MaModel extends Data implements Cloneable, BattleStatic {
 	}
 
 	/**
-	 * detect loop
+	 * 親参照をたどり、訪問中の部品へ戻った場合は循環状態を返す。
 	 */
 	private int check(int[] temp, int p) {
 		if (temp[p] > 0)

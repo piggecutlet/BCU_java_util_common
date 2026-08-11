@@ -4,6 +4,10 @@ import common.system.P;
 import common.system.fake.FakeGraphics;
 import common.util.pack.Background;
 
+/**
+ * 複数の背景効果を登録順にまとめて実行する合成効果。
+ * 内包する効果インスタンスの可変状態も共有される。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class MixedBGEffect extends BackgroundEffect {
     private final BackgroundEffect[] effects;

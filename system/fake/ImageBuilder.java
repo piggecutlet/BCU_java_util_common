@@ -12,8 +12,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Supplier;
 
+/**
+ * AWT/OpenGLなどの描画基盤ごとに画像の生成・書き出しを差し替える抽象ファクトリー。
+ * {@link #builder} は画像を読み込む前に実行環境側で設定する必要がある。
+ *
+ * @param <T> 実行環境固有の元画像型
+ */
 public abstract class ImageBuilder<T> {
 
+	/**
+	 * 現在の実行環境で使用する画像ビルダー。
+	 */
 	@StaticPermitted(StaticPermitted.Type.ENV)
 	public static ImageBuilder<?> builder;
 

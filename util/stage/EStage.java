@@ -9,6 +9,10 @@ import common.util.BattleObj;
 import common.util.stage.SCDef.Line;
 import common.util.unit.AbEnemy;
 
+/**
+ * {@link Stage}定義から生成される、1戦分の敵出現実行時状態。
+ * 行ごとの残数、待ち時間、初回判定、撃破条件を更新し、元のステージ定義とは分離して保持する。
+ */
 public class EStage extends BattleObj {
 
 	public final Stage s;
@@ -43,7 +47,7 @@ public class EStage extends BattleObj {
 	}
 
 	/**
-	 * add n new enemies to StageBasis
+	 * 出現条件を満たす先頭の敵を1体生成する。生成可能な敵がなければ{@code null}を返す。
 	 */
 	public EEnemy allow() {
 		if(s.trail && s.timeLimit != 0 && s.timeLimit * 60 * 30 - b.time < 0)
@@ -104,7 +108,7 @@ public class EStage extends BattleObj {
 	}
 
 	/**
-	 * get the Entity representing enemy base, return null if none
+	 * 敵城を表すエンティティを生成する。城行がなければ{@code null}を返す。
 	 */
 	public EEnemy base(StageBasis sb) {
 		int ind = num.length - 1;
@@ -135,7 +139,7 @@ public class EStage extends BattleObj {
 	}
 
 	/**
-	 * return true if there is still boss in the base
+	 * 未出現のボス行が残っているかを返す。
 	 */
 	public boolean hasBoss(boolean checkHP, boolean considerEBase) {
 		for (int i = 0; i < rem.length; i++) {

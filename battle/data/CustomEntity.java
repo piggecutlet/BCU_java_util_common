@@ -15,16 +15,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * カスタムキャラクターの通常攻撃配列、代表能力、特殊攻撃を管理する基底データ。
+ * {@code common} が偽の場合は攻撃ごとの能力を集約し、特殊攻撃は通常攻撃数以降の固定順で参照する。
+ */
 @JsonClass(noTag = NoTag.LOAD)
 public abstract class CustomEntity extends DataEntity {
 
 	public static int SPECIAL_ATTACK_COUNT = 7;
 
 	@JsonField(gen = GenType.GEN)
-	public AtkDataModel rev, res, bur, resu, revi, glas, cntr; // special attacks
+	public AtkDataModel rev, res, bur, resu, revi, glas, cntr; // 特殊攻撃
 
 	@JsonField(gen = GenType.GEN)
-	public AtkDataModel rep; // common
+	public AtkDataModel rep; // 共通能力の代表攻撃
 
 	@JsonField(gen = GenType.GEN, usePool = true)
 	public AtkDataModel[] atks;
@@ -33,8 +37,7 @@ public abstract class CustomEntity extends DataEntity {
 	public boolean common = true, kbBounce = true, bossBounce = true;
 
 	/**
-	 * This field is used to filter all the procs of units if common is false,
-	 * Also used for counter
+	 * {@code common} が偽の場合の全攻撃能力と、反撃で参照する能力の集約先。
 	 */
 	@JsonField(block = true)
 	private Proc all;
@@ -56,7 +59,7 @@ public abstract class CustomEntity extends DataEntity {
 	}
 
 	/**
-	 * Updates the procs in all and initializes if it is null
+	 * 攻撃ごとの能力から集約値を再構築する。
 	 */
 	public void updateAllProc() {
 		all = Proc.blank();
@@ -71,7 +74,7 @@ public abstract class CustomEntity extends DataEntity {
 	}
 
 	/**
-	 * Gets all procs for units without common proc
+	 * 共通能力を使わないキャラクターでは、攻撃ごとの能力を集約して返す。
 	 */
 	@Override
 	public Proc getAllProc() {
@@ -247,9 +250,8 @@ public abstract class CustomEntity extends DataEntity {
 	}
 
 	/**
-	 * Returns if a specific attack is LD,
-	 * used to handle LD units that have an attack that isn't LD properly
-	 * @param ind The attack to get.
+	 * 指定攻撃だけが遠方攻撃かを返す。
+	 * @param ind 攻撃の添字
 	 */
 	@Override
 	public boolean isLD(int ind) {
@@ -278,9 +280,8 @@ public abstract class CustomEntity extends DataEntity {
 	}
 
 	/**
-	 * Returns if a specific attack is Omni,
-	 * used to handle Omni units that have an attack that lacks omni properly
-	 * @param ind The attack to get.
+	 * 指定攻撃だけが全方位攻撃かを返す。
+	 * @param ind 攻撃の添字
 	 */
 	@Override
 	public boolean isOmni(int ind) {

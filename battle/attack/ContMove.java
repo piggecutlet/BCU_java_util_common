@@ -5,6 +5,10 @@ import common.CommonStatic.BattleConst;
 import common.system.P;
 import common.system.fake.FakeGraphics;
 
+/**
+ * 一定間隔で攻撃判定を移動させる持続攻撃。
+ * 再命中間隔ごとに既命中集合を消去し、残回数が尽きるまで波動攻撃を生成する。
+ */
 public class ContMove extends ContAb {
 
 	private final int itv, move, ran, rep;
@@ -13,7 +17,7 @@ public class ContMove extends ContAb {
 	private boolean tempAtk;
 
 	/**
-	 * conf: range, move, itrv, tot, rept,layer
+	 * {@code conf}: 幅、移動量、間隔、総回数、再命中間隔、描画層。
 	 */
 	public ContMove(AttackSimple as, float p, int... conf) {
 		super(as.model.b, p, conf[5]);
@@ -32,7 +36,7 @@ public class ContMove extends ContAb {
 		if (!CommonStatic.getConfig().ref)
 			return;
 
-		// after this is the drawing of hit boxes
+		// 以降は当たり判定のデバッグ描画
 		siz *= 1.25;
 		float rat = BattleConst.ratio;
 		int h = (int) (640 * rat * siz);

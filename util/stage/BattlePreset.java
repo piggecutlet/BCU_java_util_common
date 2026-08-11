@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 固定編成ステージが上書きするフォーム、レベル、お宝、にゃんこ砲の定義。
+ * 現在編成への適用時に実体を複製し、プリセット定義と戦闘用編成の可変状態を分離する。
+ */
 @JsonClass(noTag = JsonClass.NoTag.LOAD)
 public class BattlePreset {
     public static boolean isCurrentLineupPreset(BattlePreset bp) {
@@ -52,7 +56,7 @@ public class BattlePreset {
                         return false;
                     else if (!Arrays.equals(Level.getInts(lulv), Level.getInts(bplv)))
                         return false;
-                    // todo: check if orbs match
+                    // todo: オーブの一致判定
                 }
             }
         }
@@ -122,7 +126,7 @@ public class BattlePreset {
                     continue;
                 }
 
-                dest.lu.fs[i][j] = form.unit.forms[form.fid]; // prevent form change affecting battle preset
+                dest.lu.fs[i][j] = form.unit.forms[form.fid]; // 正規化したフォーム参照を戦闘用の編成スロットへ設定
                 int[] lvs = new int[10];
                 lvs[0] = lv.getLv();
                 lvs[1] = lv.getPlusLv();
@@ -138,33 +142,39 @@ public class BattlePreset {
         dest.lu.renew();
     }
 
+    /**
+     * プリセットで有効化済みとして表示する章別お宝。
+     */
     public enum ActivatedTreasure {
-        EOC1,  // EoC Ch. 1
-        EOC2,  // EoC Ch. 2
-        EOC3,  // EoC Ch. 3
-        ITF1,  // ItF Ch. 1
-        ITF2,  // ItF Ch. 2
-        ITF3,  // ItF Ch. 3
-        COTC1, // CotC Ch. 1
-        COTC2, // CotC Ch. 2
-        COTC3, // CotC Ch. 3
-        BASE   // Base health boost
+        EOC1,  // 日本編1章
+        EOC2,  // 日本編2章
+        EOC3,  // 日本編3章
+        ITF1,  // 未来編1章
+        ITF2,  // 未来編2章
+        ITF3,  // 未来編3章
+        COTC1, // 宇宙編1章
+        COTC2, // 宇宙編2章
+        COTC3, // 宇宙編3章
+        BASE   // 城体力強化
     }
 
-    public static class LevelObject { // Used in reading BC data
+    /**
+     * 公式固定編成データの読み込み中だけ使う形態・基本・プラスレベル。
+     */
+    public static class LevelObject {
         public int evolution;
         public int level;
         public int plusLevel;
     }
-    //TODO verify customized battle preset loading
+    //TODO カスタム固定編成の読み込みを検証
 
     @JsonField(alias = Form.FormJson.class)
     public final Form[][] fs = new Form[2][5];
     public final Level[][] levels = new Level[2][5];
 
-    public int baseHealthBoost; // Add 20k to unit base health if this is true
+    public int baseHealthBoost; // 味方城体力へ加算する値
 
-    // Copied treasure data manually
+    // 現在のお宝データから明示的に複製する値
     @JsonField(gen = JsonField.GenType.FILL)
     public int[] tech = new int[Treasure.LV_TOT],
             trea = new int[Treasure.T_TOT],
@@ -173,12 +183,12 @@ public class BattlePreset {
             gods = new int[3];
 
     @JsonField(gen = JsonField.GenType.FILL)
-    public int[] nyc = new int[] { -1, -1, -1 }; // -1 means don't need to replace
+    public int[] nyc = new int[] { -1, -1, -1 }; // -1は現在値を置換しない
 
     @JsonField(block = true)
-    public final List<ActivatedTreasure> activatedTreasures = new ArrayList<>(); // Used for display reasons
+    public final List<ActivatedTreasure> activatedTreasures = new ArrayList<>(); // 表示用
     @JsonField(block = true)
-    public int level; // It seems preset can be activated per crown
+    public int level; // プリセットは星数ごとに有効化できると思われる
 
     @JsonField
     public int alien, star;

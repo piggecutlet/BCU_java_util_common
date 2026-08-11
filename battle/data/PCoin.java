@@ -18,6 +18,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Queue;
 
+/**
+ * 本能1枠14要素の設定列とレベルを、複製したユニットデータへ適用する。
+ * {@link #improve(int[])} は {@link MaskUnit#clone()} の戻り値へ能力・属性・基礎値を反映する。
+ * 複製されたデータの独立性は、各 {@link MaskUnit} の実装に依存する。
+ */
 @JsonClass(read = JsonClass.RType.FILL)
 public class PCoin extends Data {
 	public static int PCOIN_MIN = 1;
@@ -64,7 +69,7 @@ public class PCoin extends Data {
 		((CustomUnit)du).pcoin = this;
 	}
 
-	public PCoin(String[] strs, MaskUnit du) { // leaving reminder that this is unused at least in PC ver.
+	public PCoin(String[] strs, MaskUnit du) { // 少なくともPC版では未使用
 		trait = Trait.bitmaskToTrait(CommonStatic.parseIntN(strs[1]));
 		for (int i = 0; i < 8; i++) {
 			if(talentExist(strs, 2 + i * 14)) {
@@ -126,8 +131,7 @@ public class PCoin extends Data {
 	}
 
 	public void update() {
-		// Apparently, if max is null, since we will update full var anyway
-		// we can just re-generate whole array
+		// full も再生成するため、max が不足していれば配列全体を作り直す
 		if (max == null || max.length < info.size())
 			max = info.stream().mapToInt(i -> Math.max(1, i[1])).toArray();
 
@@ -146,10 +150,10 @@ public class PCoin extends Data {
 				return;
 			}
 
-			switch (data[0]) { // todo: use editorgroup (please)
+			switch (data[0]) { // TODO: editorGroup を使用する
 				case 0:
 					break;
-				case 56: case 65: // normalize surge chance
+				case 56: case 65: // 烈波の発動確率を正規化
 					data[2] = MathUtil.clip(data[2], 0, 100 - proc.getArr(type).get(0));
 					data[3] = MathUtil.clip(data[3], data[2], 100 - proc.getArr(type).get(0));
 					data[8] = Math.max(1, data[8] / Data.VOLC_ITV) * Data.VOLC_ITV;
@@ -228,7 +232,7 @@ public class PCoin extends Data {
 				continue;
 			}
 
-			//Targettings that come with a talent, such as Hyper Mr's
+			// 本能と同時に追加される対象属性を反映する
 			if (data[12] > 0 && !trait.isEmpty() && talents[i] > 0)
 				for (Trait t : trait)
 					if (!ans.getTraitsRaw().contains(t))
@@ -251,7 +255,7 @@ public class PCoin extends Data {
 				ProcItem tar = ans.getProc().getArr(type[1]);
 
 				if (type[1] == P_VOLC || type[1] == P_MINIVOLC) {
-					if (du instanceof DataUnit) { // todo: restructure talents to account for more modifiers
+					if (du instanceof DataUnit) { // TODO: より多くの補正形式を扱えるよう本能データ構造を再検討する
 						tar.set(0, modifs[0]);
 						tar.set(1, modifs[2] / 4);
 						tar.set(2, (modifs[2] + modifs[3]) / 4);

@@ -27,6 +27,11 @@ import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * 既定データ、読込済みユーザーパック、型別共有レジストリを保持するプロセス単位のプロファイル。
+ * パックは依存先が先に登録された場合だけ読込キューから処理され、未解決依存は保留される。
+ * 読込中ソースも共有レジストリへ一時登録するため、並行ロードは想定されていない。
+ */
 public class UserProfile {
 
 	private static final String REG_POOL = "_pools";
@@ -44,7 +49,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get all available items for a pack, except castle
+	 * 既定パック、対象パック、直接依存パックから利用可能な要素を集める。城データは対象外。
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> List<T> getAll(String pack, Class<T> cls) {
@@ -71,7 +76,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get all packs, including default pack
+	 * 既定パックを含む全パックを返す。
 	 */
 	public static Collection<PackData> getAllPacks() {
 		List<PackData> ans = new ArrayList<>();
@@ -85,7 +90,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get a PackData from a String
+	 * パックIDから、保留中を含む{@link PackData}を解決する。
 	 */
 	public static PackData getPack(String str) {
 		UserProfile profile = profile();
@@ -106,7 +111,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get a set registered in the Registrar
+	 * レジストリ内の集合を取得し、未登録なら挿入順を保持する集合を作成する。
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> Set<T> getPool(String id, Class<T> cls) {
@@ -118,7 +123,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get a map registered in the Registrar
+	 * レジストリ内の名前付きMapを取得し、未登録なら作成する。
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Map<String, T> getRegister(String id, Class<T> cls) {
@@ -129,7 +134,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get a variable registered in the Registrar
+	 * レジストリ内の共有値を取得し、{@code null}なら既定値を登録する。
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getStatic(String id, Supplier<T> def) {
@@ -141,7 +146,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get a UserPack from a String
+	 * パックIDから、保留中を含むユーザーパックを解決する。
 	 */
 	public static UserPack getUserPack(String str) {
 		UserProfile profile = profile();
@@ -153,7 +158,7 @@ public class UserProfile {
 	}
 
 	/**
-	 * get all UserPack
+	 * 読込済みの全ユーザーパックを返す。
 	 */
 	public static Collection<UserPack> getUserPacks() {
 		return profile().packmap.values();
@@ -336,9 +341,9 @@ public class UserProfile {
 	}
 
 	/**
-	 * Unregister object from registers
+	 * IDに対応する共有レジストリを破棄する。
 	 *
-	 * @param id ID of registered object
+	 * @param id 登録対象のID
 	 */
 	public static void unregister(String id) {
 		profile().registers.remove(id);
@@ -359,8 +364,10 @@ public class UserProfile {
 	}
 
 	/**
-	 * return true if the pack is attempted to load and should be removed from the
-	 * loading queue
+	 * 依存解決済みパックの読込を試行する。
+	 *
+	 * @return 成否にかかわらず読込を試行してキューから除外すべき場合は{@code true}、
+	 *         依存未解決で保留する場合は{@code false}
 	 */
 	private boolean add(UserPack pack) {
 		packlist.add(pack);

@@ -14,6 +14,11 @@ import org.jcodec.common.tools.MathUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ユーザーパックで編集可能な味方ユニットデータ。
+ * 取り込み時に配置範囲を昇順へ正規化し、本能の各設定行を複製してカスタム形式へ変換する。
+ * 本能の最大レベル配列は取り込み元と共有する。
+ */
 @JsonClass
 public class CustomUnit extends CustomEntity implements MaskUnit, Cloneable {
 

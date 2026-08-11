@@ -10,9 +10,16 @@ import common.util.Data;
 import common.util.stage.MapColc.DefMapColc;
 import common.util.unit.Unit;
 
+/**
+ * 星数・ステージ番号で選択される編成制限とステージ全体制限の集合。
+ * {@code -1}の星数とステージ番号は全対象を表し、実戦前に{@link Stage#getLim(int)}で合成される。
+ */
 @JsonClass
 public class Limit extends Data implements BattleStatic {
 
+	/**
+	 * 公式制限表の1行を対象マップへ登録する定義。
+	 */
 	public static class DefLimit extends Limit {
 
 		public DefLimit(String[] strs) {
@@ -44,6 +51,9 @@ public class Limit extends Data implements BattleStatic {
 
 	}
 
+	/**
+	 * ユーザーパックで名前を付けて保持する制限定義。
+	 */
 	@JsonClass
 	public static class PackLimit extends Limit {
 
@@ -66,7 +76,7 @@ public class Limit extends Data implements BattleStatic {
 	public StageLimit stageLimit;
 
 	/**
-	 * for copy or combine only
+	 * 複製または制限合成の作業値を生成する。
 	 */
 	public Limit() {
 	}
@@ -97,6 +107,10 @@ public class Limit extends Data implements BattleStatic {
 		return l;
 	}
 
+	/**
+	 * 両方の制約を満たすようにビット集合、上下限、グループ制限を合成する。
+	 * 0や負数を無指定として扱う項目があるため、単純な上書きではない。
+	 */
 	public void combine(Limit l) {
 		if (rare == 0)
 			rare = l.rare;

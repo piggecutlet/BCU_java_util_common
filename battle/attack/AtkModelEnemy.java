@@ -13,6 +13,10 @@ import common.util.unit.EForm;
 import common.util.unit.Unit;
 import org.jcodec.common.tools.MathUtil;
 
+/**
+ * 敵実体の攻撃値と能力発動を組み立て、呪い中は妨害能力を除いた複製を選択する。
+ * 召喚能力では敵・味方の種別、出撃上限、倍率、配置層を解決して遅延配置へ登録する。
+ */
 public class AtkModelEnemy extends AtkModelEntity {
 
 	private final Proc[] cursed;

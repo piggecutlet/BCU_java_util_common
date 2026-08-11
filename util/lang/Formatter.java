@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Stack;
 import java.util.function.Function;
 
+/**
+ * 特殊効果の表示テンプレートを解析し、対象データと表示条件から文言を組み立てる。
+ */
 public class Formatter {
 	@JsonClass
 	public static class Context {

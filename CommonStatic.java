@@ -27,6 +27,10 @@ import java.util.regex.Pattern;
 
 import static java.lang.Character.isDigit;
 
+/**
+ * 実行環境に依存するサービスと、ユーザープロファイルに属する共有設定・補助素材への入口をまとめる。
+ * {@link #ctx} と {@link #def} は利用前にアプリケーション側で設定する必要がある。
+ */
 public class CommonStatic {
 
 	public enum LayerType {
@@ -38,14 +42,20 @@ public class CommonStatic {
 		}
 	}
 
+	/**
+	 * 戦闘内座標を描画座標へ換算するための共通定数。
+	 */
 	public interface BattleConst {
 
-		float ratio = 768f / 2400f;// r = p/u
+		float ratio = 768f / 2400f;// 描画座標 / 戦闘内座標
 	}
 
+	/**
+	 * 標準素材の読み込み後に共有される、戦闘・編集画面向けの補助素材群。
+	 */
 	public static class BCAuxAssets {
 
-		// Res resources
+		// Res が利用する素材
 		public VImg[] slot = new VImg[3];
 		public VImg[][] ico = new VImg[2][];
 		public VImg[][] num = new VImg[9][11];
@@ -56,22 +66,22 @@ public class CommonStatic {
 
 		public Map<Integer, VImg> gatyaitem = new HashMap<>();
 		public VImg XP;
-		public VImg[][] moneySign = new VImg[4][4]; //Money on, off/Cost on, off
+		public VImg[][] moneySign = new VImg[4][4]; // 所持金の有効・無効 / コストの有効・無効
 		public VImg[] spiritSummon = new VImg[4];
 		/**
-		 * Use this if trait.icon is null
+		 * 属性アイコンがない場合に使用する。
 		 */
 		public VImg dummyTrait;
 
-		// Background resources
+		// 背景素材
 		public final List<ImgCut> iclist = new ArrayList<>();
 
-		// Available data for orb, will be used for GUI
-		// Map<Type, Map<Trait, Grades>>
+		// GUI で利用可能な本能玉データ
+		// Map<種類, Map<属性, 等級>>
 		public final Map<Integer, Map<Integer, List<Integer>>> ORB = new TreeMap<>();
 		public final Map<Integer, Integer> DATA = new HashMap<>();
 
-		// 0 = big size, 1 = small size
+		// 0 = 大サイズ、1 = 小サイズ
 		public FakeImage[][] TYPES = new FakeImage[2][];
 		public FakeImage[][] TRAITS = new FakeImage[2][];;
 		public FakeImage[][] GRADES = new FakeImage[2][];;
@@ -89,20 +99,23 @@ public class CommonStatic {
 		public final VImg[] rarity = new VImg[6];
 		public final VImg[] maxcat = new VImg[12];
 
-		// Form cuts
+		// 味方キャラクター画像の切り出し定義
 		public ImgCut unicut, udicut;
 
 		// RandStage
 		public final int[][] randRep = new int[5][];
 
-		// def unit level
+		// 味方キャラクターの既定レベル
 		public UnitLevel defLv;
 
-		// bg effect
+		// 背景エフェクト
 		public final Map<Integer, BackgroundEffect> bgEffects = new HashMap<>();
 
 	}
 
+	/**
+	 * ユーザープロファイルに保存され、画面表示・戦闘・バックアップ処理から共有される実行設定。
+	 */
 	@JsonClass(noTag = NoTag.LOAD)
 	public static class Config {
 
@@ -121,50 +134,50 @@ public class CommonStatic {
 		public boolean ref = true, battle = false, icon = false;
 		public boolean twoRow = true;
 		/**
-		 * Use this variable to unlock plus level for aku outbreak
+		 * 悪魔編でプラスレベルを有効にするかどうか。
 		 */
 		public boolean plus = false;
 		/**
-		 * Use this variable to adjust level limit for aku outbreak
+		 * 悪魔編で適用するレベル上限。0 の場合は制限しない。
 		 */
 		public int levelLimit = 0;
-		// Lang
+		// 表示言語
 		public Lang.Locale lang = Lang.Locale.EN;
 		/**
-		 * Restoration target backup file, null means none
+		 * 復元対象のバックアップファイル名。{@code null} は対象なし。
 		 */
 		public String backupFile;
 		/**
-		 * Used for partial restoration
+		 * 部分復元の対象パス。{@code null} の場合はバックアップ全体を復元する。
 		 */
 		public String backupPath;
 		/**
-		 * Maximum number of backups, 0 means infinite
+		 * バックアップの最大数。0 は上限なし、-1 はバックアップ無効。
 		 */
 		public int maxBackup = 5;
 
 		/**
-		 * Preferred level for units
+		 * 味方キャラクターに適用する優先レベル。
 		 */
 		public int prefLevel = 50;
 
 		/**
-		 * Decide whehter draw bg effect or not
+		 * 背景エフェクトを描画するかどうか。
 		 */
 		public boolean drawBGEffect = true;
 
 		/**
-		 * Enable 6f button delay on spawn
+		 * 生産時のボタンに6フレームの待ち時間を適用するかどうか。
 		 */
 		public boolean buttonDelay = true;
 
 		/**
-		 * Color of background in viewer
+		 * ビューアーの背景色。-1 の場合は既定色。
 		 */
 		public int viewerColor = -1;
 
 		/**
-		 * Make BCU show ex stage continuation pop-up if true
+		 * EXステージへの続行ポップアップを表示するかどうか。
 		 */
 		public boolean exContinuation = false;
 
@@ -174,32 +187,32 @@ public class CommonStatic {
 		public boolean realEx = false;
 
 		/**
-		 * Make stage name image displayed in battle
+		 * 戦闘中にステージ名画像を表示するかどうか。
 		 */
 		public boolean stageName = true;
 
 		/**
-		 * Make battle shaken
+		 * 戦闘画面の揺れを有効にするかどうか。
 		 */
 		public boolean shake = true;
 
 		/**
-		 * Replace old music when updated
+		 * 更新時に既存の音楽ファイルを置き換えるかどうか。
 		 */
 		public boolean updateOldMusic = true;
 
 		/**
-		 * Perform realistic BC levelings
+		 * 本編相当のレベル計算を使用するかどうか。
 		 */
 		public boolean realLevel = false;
 
 		/**
-		 * 60 fps mode if this is true for animation
+		 * アニメーション表示・録画を60 FPSで処理するかどうか。
 		 */
 		public boolean performanceModeAnimation = false;
 
 		/**
-		 * 60 fps mode if this is true for battle
+		 * 戦闘を60 FPSで処理するかどうか。
 		 */
 		public boolean performanceModeBattle = false;
 	}
@@ -218,10 +231,13 @@ public class CommonStatic {
 
 	}
 
+	/**
+	 * 保存・終了と音声再生を実行環境へ委譲するためのインターフェース。
+	 */
 	public interface Itf {
 
 		/**
-		 * exit
+		 * 保存処理を行い、指定された場合はアプリケーションを終了する。
 		 */
 		void save(boolean save, boolean exit);
 
@@ -237,6 +253,9 @@ public class CommonStatic {
 		void setBGM(Identifier<Music> mus);
 	}
 
+	/**
+	 * 対応言語と、翻訳がない場合の言語フォールバック順を保持する。
+	 */
 	public static class Lang {
 		public enum Locale {
 			EN("en"),
@@ -263,7 +282,7 @@ public class CommonStatic {
 		}
 
 		/**
-		 * List of priorities that each language will display
+		 * 各表示言語で翻訳を探索する優先順。
 		 */
 		@StaticPermitted
 		public static final Locale[][] pref = {
@@ -280,7 +299,7 @@ public class CommonStatic {
 		};
 
 		/**
-		 * List of languages that are supported by Ponos
+		 * PONOS由来データで対応する言語の一覧。
 		 */
 		@StaticPermitted
 		public static final CommonStatic.Lang.Locale[] supportedLanguage = {
@@ -296,9 +315,15 @@ public class CommonStatic {
 		};
 	}
 
+	/**
+	 * 保存・音声処理を担う環境実装。アプリケーション初期化時に設定する。
+	 */
 	@StaticPermitted(StaticPermitted.Type.ENV)
 	public static Itf def;
 
+	/**
+	 * ファイル解決とエラー通知を担う環境実装。アプリケーション初期化時に設定する。
+	 */
 	@StaticPermitted(StaticPermitted.Type.ENV)
 	public static Context ctx;
 
@@ -588,22 +613,23 @@ public class CommonStatic {
 	}
 
 	/**
-	 * play sound effect
+	 * 効果音を再生する。
 	 */
 	public static void setSE(int ind) {
 		def.setSE(ind);
 	}
 
 	/**
-	 * play sound effect with identifier
+	 * 識別子で指定した効果音を再生する。
 	 */
 	public static void setSE(Identifier<Music> mus) {
 		def.setSE(mus);
 	}
 
 	/**
-	 * play background music
-	 * @param music Music
+	 * BGMを再生する。
+	 *
+	 * @param music 音楽の識別子
 	 */
 	public static void setBGM(Identifier<Music> music) {
 		def.setBGM(music);
@@ -624,7 +650,7 @@ public class CommonStatic {
 	}
 
 	/**
-	 * Gets the minimum position value for a data enemy.
+	 * 標準敵モデルから配置可能な最小位置を算出する。
 	 */
 	public static float dataEnemyMinPos(MaModel model) {
 		int x = ((model.confs[0][2] - model.parts[0][6]) * model.parts[0][8]) / model.ints[0];
@@ -632,7 +658,7 @@ public class CommonStatic {
 	}
 
 	/**
-	 * Gets the minimum position value for a custom enemy.
+	 * カスタム敵モデルから配置可能な最小位置を算出する。
 	 */
 	public static float customEnemyMinPos(MaModel model) {
 		int x = ((model.confs[0][2] - model.parts[0][6]) * model.parts[0][8]) / model.ints[0];
@@ -640,7 +666,7 @@ public class CommonStatic {
 	}
 
 	/**
-	 * Gets the minimum position value for a data cat unit.
+	 * 標準味方モデルから配置可能な最小位置を算出する。
 	 */
 	public static int dataFormMinPos(MaModel model) {
 		int x = ((model.confs[1][2] - model.parts[0][6]) * model.parts[0][8]) / model.ints[0];
@@ -648,7 +674,7 @@ public class CommonStatic {
 	}
 
 	/**
-	 * Gets the minimum position value for a custom cat unit.
+	 * カスタム味方モデルから配置可能な最小位置を算出する。
 	 */
 	public static int customFormMinPos(MaModel model) {
 		int x = (-model.parts[0][6] * model.parts[0][8]) / model.ints[0];
@@ -656,8 +682,8 @@ public class CommonStatic {
 	}
 
 	/**
-	 * Gets the boss spawn point for a castle.
-	 * Credits to Domimmo314 for formula
+	 * 城画像のパラメーターからボス出現位置を算出する。
+	 * 計算式の提供者は Domimmo314。
 	 */
 	public static float bossSpawnPoint(int x, int s) {
 		int v = 3200 + x * s / 10 - s * 1180 / 100 + s * 127 / 10;

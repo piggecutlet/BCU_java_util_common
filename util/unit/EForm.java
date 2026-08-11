@@ -9,6 +9,10 @@ import common.util.Data;
 import common.util.anim.AnimU;
 import common.util.anim.EAnimU;
 
+/**
+ * フォーム定義と選択レベルを結び、戦闘用味方エンティティを生成する実行時ラッパー。
+ * 本能適用後の能力定義を保持するが、体力や位置など個体状態は生成された{@link EUnit}が保持する。
+ */
 public class EForm extends Data {
 
 	private final Form f;
@@ -34,6 +38,9 @@ public class EForm extends Data {
 			du = form.du;
 	}
 
+	/**
+	 * 基本レベルとプラス値の合計から成長倍率を求め、必要なら魔界編のレベル制限を先に適用する。
+	 */
 	public EUnit getEntity(StageBasis b, int[] index, boolean isSpirit, boolean everyOtherOrb) {
 		if(b.st.isAkuStage())
 			getAkuStageLevel(level);

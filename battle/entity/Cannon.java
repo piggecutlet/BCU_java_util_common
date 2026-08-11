@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * にゃんこ砲の予備動作、砲種別の攻撃生成、関連アニメーションを進行する。
+ * 壁砲だけは攻撃を生成せず、一時的な味方実体を生成・破棄する。
+ */
 public class Cannon extends AtkModelAb {
 
     public final int id, base, deco;
@@ -40,7 +44,7 @@ public class Cannon extends AtkModelAb {
     }
 
     /**
-     * call when shoot the canon
+     * 発射時に予備動作と効果音を開始する。
      */
     public void activate() {
         anim = CommonStatic.getBCAssets().atks[id].getEAnim(NyType.BASE);
@@ -49,7 +53,7 @@ public class Cannon extends AtkModelAb {
     }
 
     /**
-     * attack part of animation
+     * 攻撃部分のアニメーションを描画する。
      */
     public void drawAtk(FakeGraphics g, P ori, float siz) {
         FakeTransform at = g.getTransform();
@@ -65,7 +69,7 @@ public class Cannon extends AtkModelAb {
             return;
         }
 
-        // after this is the drawing of hit boxes
+        // 以降は当たり判定のデバッグ描画
         siz *= 1.25;
         float rat = BattleConst.ratio;
         int h = (int) (640 * rat * siz);
@@ -88,7 +92,7 @@ public class Cannon extends AtkModelAb {
     }
 
     /**
-     * base part of animation
+     * 砲台部分のアニメーションを描画する。
      */
     public void drawBase(FakeGraphics g, P ori, float siz) {
         if (anim == null)
@@ -158,14 +162,14 @@ public class Cannon extends AtkModelAb {
         }
 
         if (preTime == -1 && id == 2) {
-            // wall canon
+            // 壁砲
             Form f = Identifier.parseInt(339, Unit.class).get().forms[0];
             EAnimU enter = f.getEAnim(UType.ENTER);
             enter.setTime(1);
             wall = new EUnit(b, f.du, enter, 1);
             b.le.add(wall);
             b.le.sort(Comparator.comparingInt(e -> e.currentLayer));
-            wall.added(-1, (int) (pos + 100)); // guessed distance from enemy compared from BC // update: checked with GG, correct
+            wall.added(-1, (int) (pos + 100)); // 本家との比較で推測後、GameGuardianで確認済み
             preTime = (int) b.b.t().getCannonMagnification(id, Data.BASE_WALL_ALIVE_TIME) + enter.len() - 1;
         }
 
@@ -173,7 +177,7 @@ public class Cannon extends AtkModelAb {
             return;
 
         if (id == 2) {
-            // wall canon
+            // 壁砲
             if (wall != null)
                 wall.kill(Entity.KillMode.SELF_DESTRUCT);
             wall = null;
@@ -183,20 +187,12 @@ public class Cannon extends AtkModelAb {
         Proc proc = Proc.blank();
 
         /**
-         * Cannons can be grouped into 2 main type: waved and localized
-         * waved: basic, slow, zombie, curse
-         * localized: wall, freeze, water, blast
-         *
-         * NYRAN for localized cannons represents directly the aoe of the cannon
-         * NYRAN for waved cannons has 2 different meanings:
-         *       - basic and zombie cannons use NYRAN for the aoe of each single wave
-         *             NYRAN is then also used for wave-0 offset
-         *       - slow and curse cannons use NYRAN for wave-0 offset
-         *             spe is indeed used for the aoe of their single wave
+         * NYRAN は通常・ゾンビ砲の波動幅、スロウ・呪い砲の初期位置補正、
+         * 停止・水砲の固定攻撃幅に使う。ブレイク砲の攻撃幅には BASE_RANGE を使う。
          */
         List<Trait> traits = new ArrayList<>();
         if (id == 0) {
-            // basic canon
+            // 通常砲
             traits.add(null);
             proc.WAVE.lv = b.b.t().tech[LV_CRG] + 2;
             proc.SNIPER.prob = 1;
@@ -206,7 +202,7 @@ public class Cannon extends AtkModelAb {
             AttackCanon eatk = new AttackCanon(this, atk, traits, 0, proc, 0, 0, 1);
             new ContWaveCanon(new AttackWave(eatk.attacker, eatk, p, wid, WT_CANN | WT_WAVE), p, 0);
         } else if (id == 1) {
-            // slow canon
+            // スロウ砲
             traits.add(null);
             proc.SLOW.time = (int) (b.b.t().getCannonMagnification(id, Data.BASE_SLOW_TIME) * (100 + (StageLimit.isComboBanned(b.est.lim, C_SLOW) ? 0 : b.b.getInc(C_SLOW))) / 100);
             float wid = NYRAN[1];
@@ -215,7 +211,7 @@ public class Cannon extends AtkModelAb {
             AttackCanon eatk = new AttackCanon(this, 0, traits, 0, proc, 0, 0, 1);
             new ContExtend(eatk, p, wid, spe, 1, 32, 0, 9);
         } else if (id == 3) {
-            // freeze canon
+            // 停止砲
             traits.add(null);
             duration = 11;
             proc.STOP.time = (int) (b.b.t().getCannonMagnification(id, Data.BASE_TIME) * (100 + (StageLimit.isComboBanned(b.est.lim, C_STOP) ? 0 : b.b.getInc(C_STOP))) / 100.0);
@@ -223,14 +219,14 @@ public class Cannon extends AtkModelAb {
             float rad = NYRAN[3] / 2;
             b.getAttack(new AttackCanon(this, atk, traits, 0, proc, pos - rad, pos + rad, duration));
         } else if (id == 4) {
-            // water canon
+            // 水鉄砲
             traits.add(UserProfile.getBCData().traits.get(TRAIT_METAL));
             duration = 11;
             proc.CRIT.mult = -(int) (b.b.t().getCannonMagnification(id, Data.BASE_HEALTH_PERCENTAGE));
             float rad = NYRAN[4] / 2;
             b.getAttack(new AttackCanon(this, 1, new ArrayList<>(), 0, proc, pos - rad, pos + rad, duration));
         } else if (id == 5) {
-            // zombie canon
+            // ゾンビ砲
             traits.add(UserProfile.getBCData().traits.get(TRAIT_ZOMBIE));
             proc.WAVE.lv = b.b.t().tech[LV_CRG] + 2;
             proc.STOP.time = (int) (b.b.t().getCannonMagnification(id, Data.BASE_TIME) * (100 + (StageLimit.isComboBanned(b.est.lim, C_STOP) ? 0 : b.b.getInc(C_STOP))) / 100);
@@ -241,7 +237,7 @@ public class Cannon extends AtkModelAb {
             AttackCanon eatk = new AttackCanon(this, 0, traits, AB_ONLY | AB_ZKILL | AB_CKILL, proc, 0, 0, 1);
             new ContWaveCanon(new AttackWave(eatk.attacker, eatk, p, wid, WT_CANN | WT_WAVE), p, 5);
         } else if (id == 6) {
-            // blast canon
+            // ブレイク砲
             traits.add(null);
             duration = 11;
             proc.BREAK.prob = 1;
@@ -255,7 +251,7 @@ public class Cannon extends AtkModelAb {
             atka = CommonStatic.getBCAssets().atks[id].getEAnim(NyType.ATK);
             exta = CommonStatic.getBCAssets().atks[id].getEAnim(NyType.EXT);
         } else if (id == 7) {
-            // curse cannon
+            // 呪い砲
             traits.add(null);
             proc.CURSE.time = (int) b.b.t().getCannonMagnification(id, Data.BASE_CURSE_TIME);
             float wid = NYRAN[7];

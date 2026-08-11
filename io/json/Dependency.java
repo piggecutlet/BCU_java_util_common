@@ -13,8 +13,15 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+/**
+ * JSON書き出し対象と同じ反射規約でオブジェクトグラフを走査し、参照先{@link Identifier}を集計する。
+ * パック依存へ変換する際は、ステージと城画像の既定データを実際の所有パックへ正規化する。
+ */
 public class Dependency {
 
+	/**
+	 * エンコーダーと同じ別名・直列化・bypass規約を追跡する再帰走査状態。
+	 */
 	private static class DependencyCheck {
 
 		protected static void collect(Dependency set, Object obj, DependencyCheck par) throws Exception {

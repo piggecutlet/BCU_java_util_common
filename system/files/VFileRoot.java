@@ -1,11 +1,18 @@
 package common.system.files;
 
+/**
+ * {@code ./org/...} 形式の仮想パスを起点に、仮想ファイルツリーを構築・検索するルートノード。
+ */
 public class VFileRoot extends VFile {
 
 	public VFileRoot(String str) {
 		super(str);
 	}
 
+	/**
+	 * ルート名に相当する先頭要素を除いてパスをたどり、不足するディレクトリを作成する。
+	 * 終端が既存ノードの場合、{@code fd} が非nullならそのデータを置き換える。
+	 */
 	public VFile build(String str, FileData fd) {
 		String[] strs = str.split("/|\\\\");
 		VFile par = this;
@@ -33,6 +40,11 @@ public class VFileRoot extends VFile {
 		return null;
 	}
 
+	/**
+	 * ルート名に相当する先頭要素を除いてパスをたどる。
+	 *
+	 * @return 対応するノード。途中の要素が存在しない場合は{@code null}
+	 */
 	public VFile find(String str) {
 		String[] strs = str.split("/|\\\\");
 		VFile par = this;

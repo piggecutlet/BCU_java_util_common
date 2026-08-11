@@ -9,6 +9,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 
+/**
+ * 単一項目の言語別文字列を保持し、設定言語から利用可能な値へフォールバックする。
+ */
 @JsonClass(read = JsonClass.RType.FILL)
 public class MultiLangData extends Data {
     @JsonField(generic = {Lang.Locale.class, String.class})

@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 共通スプライトの部品29を雨筋、部品28を水しぶきとして、前景と後景へ分けて描画する降雨効果。
+ * update() ごとに配置を作り直し、アニメーション専用更新では状態を変更しない。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class RainBGEffect extends BackgroundEffect {
     private final VImg sprite;
@@ -74,7 +78,7 @@ public class RainBGEffect extends BackgroundEffect {
         FakeTransform at = g.getTransform();
 
         for(int i = 0; i < rainPosition.size(); i++) {
-            //30 and 50 shifting is to draw image at center
+            // 30 と 50 のずれは画像中心を描画位置へ合わせるため
             g.translate(convertP(rainPosition.get(i).x, siz) + (int) rect.x - 30 * siz * 0.8f, (int) (rainPosition.get(i).y * siz - rect.y + midH * siz - 50 * siz * 0.8));
             g.rotate((float) (Math.PI / 3));
 
@@ -113,14 +117,14 @@ public class RainBGEffect extends BackgroundEffect {
         }
 
         for(int i = 0; i < splashNumber; i++) {
-            //Y : BGHeight * 3 - 100 - random(0 ~ 80)
+            // Y = BGHeight * 3 - 最低高さ - 範囲内乱数
             splashPosition.add(P.newP(r.nextInt(w + battleOffset), BGHeight * 3 - Data.BG_EFFECT_SPLASH_MIN_HEIGHT - r.nextInt(Data.BG_EFFECT_SPLASH_RANGE)));
         }
     }
 
     @Override
     public void updateAnimation(int w, float h, float midH) {
-        //Do nothing
+        // 配置更新を伴わないアニメーション更新では処理しない
     }
 
     @Override

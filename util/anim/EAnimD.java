@@ -4,6 +4,10 @@ import common.CommonStatic;
 import common.system.P;
 import common.system.fake.FakeGraphics;
 
+/**
+ * {@link AnimD} のモデルから作られる、再生時の可変な姿勢と時刻を持つアニメーションインスタンス。
+ * 共有タイムラインを評価してインスタンス固有の {@link EPart} 群を更新し、部品のZ値で描画順を組み直す。
+ */
 @SuppressWarnings("ForLoopReplaceableByForEach")
 public class EAnimD<T extends Enum<T> & AnimI.AnimType<?, T>> extends EAnimI {
 
@@ -48,11 +52,13 @@ public class EAnimD<T extends Enum<T> & AnimI.AnimType<?, T>> extends EAnimI {
 	}
 
 	/**
-	 * Draw parts with specific opacity and size
-	 * @param g Graphic
-	 * @param ori Position
-	 * @param siz Size
-	 * @param opacity Opacity, range is 0 ~ 255
+	 * 指定した不透明度と縦横倍率で全パーツを描画する。
+	 * @param g 描画先
+	 * @param ori 描画原点
+	 * @param siz 基準倍率
+	 * @param opacity 不透明度。範囲は0から255
+	 * @param sizX 横倍率
+	 * @param sizY 縦倍率
 	 */
 	public void drawBGEffect(FakeGraphics g, P ori, float siz, int opacity, float sizX, float sizY) {
 		if(f == -1) {
@@ -123,11 +129,13 @@ public class EAnimD<T extends Enum<T> & AnimI.AnimType<?, T>> extends EAnimI {
 	@Override
 	protected void performDeepCopy() {
 		super.performDeepCopy();
+		// 部品配列を再構築した後に時刻を再評価し、コピー元と同じ姿勢へ戻す。
 		((EAnimD<?>) copy).setTime(f);
 	}
 
 	/**
-	 * make this animation a component of another, used in warp and kb
+	 * このアニメーションの基点を別アニメーションの部品へ一時的に接続する。
+	 * ワープやノックバックの合成描画後に {@code null} を渡すと元の親へ戻る。
 	 */
 	public void paraTo(EAnimD<?> base) {
 		if (base == null)

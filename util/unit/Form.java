@@ -21,10 +21,17 @@ import common.util.lang.MultiLangData;
 
 import javax.annotation.Nullable;
 
+/**
+ * 1キャラの特定形態について、能力・特性・攻撃・アニメーションを保持する定義。
+ * キャラ識別子{@link #uid}と形態番号{@link #fid}の組で参照し、現在レベルや戦闘中状態は保持しない。
+ */
 @JCGeneric(Form.FormJson.class)
 @JsonClass(read = RType.FILL)
 public class Form extends Animable<AnimU<?>, AnimU.UType> implements BasedCopable<Form, Unit> {
 
+	/**
+	 * フォーム参照をキャラ識別子と形態番号だけで直列化する代理値。
+	 */
 	@JsonClass(noTag = NoTag.LOAD)
 	public static class FormJson {
 
@@ -93,7 +100,7 @@ public class Form extends Animable<AnimU<?>, AnimU.UType> implements BasedCopabl
 		cu.pack = this;
 	}
 
-	//Used for BC units
+	// 公式の通常キャラ用
 	protected Form(Unit u, int f, String str, String data) {
 		unit = u;
 		uid = u.id;
@@ -106,7 +113,7 @@ public class Form extends Animable<AnimU<?>, AnimU.UType> implements BasedCopabl
 		MaModel model = anim.loader.getMM();
 		((DataUnit) du).limit = CommonStatic.dataFormMinPos(model);
 	}
-	//Used for BC eggs
+	// 公式のタマゴキャラ用
 	protected Form(Unit u, int f, int m, String str, String data) {
 		unit = u;
 		uid = u.id;
@@ -170,11 +177,11 @@ public class Form extends Animable<AnimU<?>, AnimU.UType> implements BasedCopabl
 					data.limit = CommonStatic.customFormMinPos(model);
 					proc.BARRIER.health = data.shield;
 					data.traits = Trait.bitmaskToTrait(data.type);
-					if ((data.abi & (1 << 18)) != 0) //Seal Immunity
+					if ((data.abi & (1 << 18)) != 0) // 封印無効
 						proc.IMUSEAL.mult = 100;
-					if ((data.abi & (1 << 7)) != 0) //Moving atk Immunity
+					if ((data.abi & (1 << 7)) != 0) // 移動攻撃無効
 						proc.IMUMOVING.mult = 100;
-					if ((data.abi & (1 << 12)) != 0) //Poison Immunity
+					if ((data.abi & (1 << 12)) != 0) // 毒撃無効
 						proc.IMUPOI.mult = 100;
 					data.abi = Data.reorderAbi(data.abi, 0);
 				}
@@ -190,9 +197,9 @@ public class Form extends Animable<AnimU<?>, AnimU.UType> implements BasedCopabl
 				}
 
 				if (UserProfile.isOlderPack(pack, "0.6.5.0")) {
-					if ((data.abi & 16) > 0) //2x money
+					if ((data.abi & 16) > 0) // 撃破時のお金2倍
 						proc.BOUNTY.mult = 100;
-					if ((data.abi & 32) > 0) //base destroyer
+					if ((data.abi & 32) > 0) // 城破壊
 						proc.ATKBASE.mult = 300;
 					data.abi = Data.reorderAbi(data.abi, 1);
 				}
@@ -244,10 +251,10 @@ public class Form extends Animable<AnimU<?>, AnimU.UType> implements BasedCopabl
 	}
 
 	/**
-	 * Validate level values in {@code target} {@link common.util.unit.Level}
-	 * @param src {@code Level} that will be put into {@code target} {@code Level}. Can be null
-	 * @param target {@code Level} that will be validated
-	 * @return Validated {@code target} {@code Level} will be returned
+	 * 基本・プラス・本能レベルをこのフォームとユニットの上限内へ収める。
+	 * @param src {@code target}へ反映するレベル。{@code null}なら{@code target}自身を検証する
+	 * @param target 検証および更新対象のレベル
+	 * @return 更新後の{@code target}
 	 */
 	public Level regulateLv(@Nullable Level src, Level target) {
 		if(src != null) {

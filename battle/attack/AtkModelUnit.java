@@ -18,6 +18,10 @@ import common.util.unit.Level;
 import common.util.unit.Unit;
 import org.jcodec.common.tools.MathUtil;
 
+/**
+ * 味方実体の攻撃値と能力発動を組み立て、コンボ・本能・本能玉の補正を適用する。
+ * 召喚能力では味方・敵の種別、出撃上限、レベル、配置層を解決して遅延配置へ登録する。
+ */
 public class AtkModelUnit extends AtkModelEntity {
 
 	private final BasisLU bas;

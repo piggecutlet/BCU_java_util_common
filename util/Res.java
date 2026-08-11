@@ -11,6 +11,10 @@ import common.system.fake.FakeImage;
 import common.system.fake.ImageBuilder;
 import common.util.anim.ImgCut;
 
+/**
+ * 戦闘画面用の共通画像資源を読み込み、数値・費用・体力などの表示画像を組み立てる。
+ * 配列添字は {@link Data} の能力・Proc・特性インデックス、および読み込む imgcut の部品順に対応する。
+ */
 public class Res extends ImgCore {
 
 	public static P getBase(AbEntity ae, SymCoord coor, boolean dojo) {
@@ -131,7 +135,7 @@ public class Res extends ImgCore {
 			aux.gatyaitem.put(i, new VImg("./org/page/catfruit/gatyaitemD_" + i + "_f.png"));
 
 		ImgCut xp = new ImgCut();
-		xp.cuts = new int[][] { { 27, 43, 74, 42 } }; // TODO may need to un-hardcode this
+		xp.cuts = new int[][] { { 27, 43, 74, 42 } }; // TODO この固定値を外部データ化する必要があるかもしれない
 		aux.XP = new VImg("./org/page/catfruit/xp.png");
 		aux.XP.setCut(xp);
 
@@ -255,7 +259,7 @@ public class Res extends ImgCore {
 		aux.icon[1][P_IMUCANNON] = new VImg("./org/page/icons/CannonX.png");
 		aux.icon[1][P_IMUDELAY] = new VImg("./org/page/icons/ImuDelay.png");
 
-		//These are used for talent edit page icons
+		// 本能編集画面で使用するアイコン
 		aux.icon[4][PC2_HP] = new VImg(parts[120]);
 		aux.icon[4][PC2_ATK] = new VImg(parts[118]);
 		aux.icon[4][PC2_SPEED] = new VImg(parts[96]);
@@ -352,7 +356,7 @@ public class Res extends ImgCore {
 			aux.battle[1][2 + i] = new VImg(parts[11 + i]);
 		aux.battle[1][22] = new VImg(parts[54]);
 
-		//jp fire
+		// 日本語版の発射表示
 		aux.battle[1][12] = new VImg(parts[9]);
 		aux.battle[1][13] = new VImg(parts[10]);
 		aux.spiritSummon[3] = new VImg(parts[53]);
@@ -360,7 +364,7 @@ public class Res extends ImgCore {
 		ic002 = ImgCut.newIns("./org/page/img002_en.imgcut");
 		img002 = new VImg("./org/page/img002_en.png");
 		parts = ic002.cut(img002.getImg());
-		//en fire
+		// 英語版の発射表示
 		aux.battle[1][14] = new VImg(parts[9]);
 		aux.battle[1][15] = new VImg(parts[10]);
 
@@ -373,7 +377,7 @@ public class Res extends ImgCore {
 		ic002 = ImgCut.newIns("./org/page/img002_ko.imgcut");
 		img002 = new VImg("./org/page/img002_ko.png");
 		parts = ic002.cut(img002.getImg());
-		//kr fire
+		// 韓国語版の発射表示
 		aux.battle[1][16] = new VImg(parts[9]);
 		aux.battle[1][17] = new VImg(parts[10]);
 
@@ -386,7 +390,7 @@ public class Res extends ImgCore {
 		ic002 = ImgCut.newIns("./org/page/img002_tw.imgcut");
 		img002 = new VImg("./org/page/img002_tw.png");
 		parts = ic002.cut(img002.getImg());
-		//tw fire
+		// 繁体字版の発射表示
 		aux.battle[1][18] = new VImg(parts[9]);
 		aux.battle[1][19] = new VImg(parts[10]);
 
@@ -414,7 +418,7 @@ public class Res extends ImgCore {
 			aux.battle[2][i] = new VImg("./org/page/speedUp" + (i - 3) + ".png");
 		}
 
-		// money, lv, lv dark,cost,cost dark,hp, money light,time,point
+		// num の添字順: 所持金、レベル、暗色レベル、費用、暗色費用、体力、明色所持金、時間、点数
 	}
 
 	private static VImg makeLineupIconFrame(boolean isMagenta) {

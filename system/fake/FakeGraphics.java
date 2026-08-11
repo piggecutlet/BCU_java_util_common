@@ -1,5 +1,10 @@
 package common.system.fake;
 
+/**
+ * AWTとOpenGLの双方から利用する、状態を持つ2次元描画コンテキスト。
+ * 座標変換を一時変更する処理は{@link #getTransform()}で退避し、
+ * 描画後に{@link #setTransform(FakeTransform)}で同じ実装へ復元する。
+ */
 public interface FakeGraphics {
 
 	int RED = 0, YELLOW = 1, BLACK = 2, MAGENTA = 3, BLUE = 4, CYAN = 5, WHITE = 6;

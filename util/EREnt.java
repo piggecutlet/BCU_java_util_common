@@ -6,6 +6,12 @@ import common.system.Copable;
 
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * ランダム選択の一候補と、その倍率・抽選重みを保持する値オブジェクト。
+ * {@link #copy()} は候補 ent の参照を共有し、数値だけを値コピーする。
+ *
+ * @param <X> 候補エンティティ型
+ */
 @JsonClass(noTag = NoTag.LOAD)
 public class EREnt<X> implements BattleStatic, Copable<EREnt<X>> {
 

@@ -6,6 +6,10 @@ import common.util.stage.Replay;
 
 import java.util.HashMap;
 
+/**
+ * 記録済み操作を再生し、間引いたスナップショットから巻き戻し・位置復元を行う。
+ * 復元時は直前のスナップショットを複製し、目的進捗まで決定論的に再実行する。
+ */
 public class SBRply extends Mirror {
 
 	private final Replay r;
@@ -55,6 +59,9 @@ public class SBRply extends Mirror {
 
 }
 
+/**
+ * リプレイ操作列を入力源として進められる戦場の複製。
+ */
 class Mirror extends BattleField {
 
 	protected Release rl;
@@ -80,7 +87,7 @@ class Mirror extends BattleField {
 	}
 
 	/**
-	 * process the user action
+	 * 現在フレームの記録ビット列を戦闘操作へ再適用する。
 	 */
 	@Override
 	protected void actions() {
@@ -108,6 +115,9 @@ class Mirror extends BattleField {
 
 }
 
+/**
+ * リプレイ全長を平方根個に分割して保持する疎なスナップショット集合。
+ */
 class MirrorSet {
 
 	private final Mirror[] mis;
@@ -148,6 +158,9 @@ class MirrorSet {
 
 }
 
+/**
+ * 値・連続回数の組へ圧縮された操作列を1フレームずつ展開する。
+ */
 class Release {
 
 	protected final int[] recd;

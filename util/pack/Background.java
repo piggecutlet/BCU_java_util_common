@@ -29,6 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * パック内の背景画像、上下グラデーション色、オーバーレイ、および背景効果の参照を管理する。
+ * cs の第1添字は4組の色、第2添字は RGB。parts の BG は反復描画する本体、TOP は上端画像を表す。
+ */
 @IndexCont(PackData.class)
 @JsonClass.JCGeneric(Identifier.class)
 @JsonClass
@@ -38,7 +42,7 @@ public class Background extends AnimI<Background, Background.BGWvType> implement
         ENEMY, UNIT
     }
 
-    public static final int BG = 0, TOP = 20, shift = 65; // in pix
+    public static final int BG = 0, TOP = 20, shift = 65; // 画像部品添字とピクセル単位のずれ
 
     public static void read() {
         BCAuxAssets aux = CommonStatic.getBCAssets();
@@ -201,12 +205,14 @@ public class Background extends AnimI<Background, Background.BGWvType> implement
     public VImg img;
     @JsonField
     public int[][] cs = new int[4][3];
+    /** -1 は効果なし、0 以上は共有効果 ID、負の背景 ID は mixture に登録された複合効果を表す。 */
     @JsonField
     public int effect = -1;
     @JsonField
     public int overlayAlpha;
     @JsonField
     public int[][] overlay;
+    /** -1 以外の場合、画像や未指定の効果を参照先背景から引き継ぐ。 */
     @JsonField(block = true)
     public int reference = -1;
 
@@ -295,6 +301,7 @@ public class Background extends AnimI<Background, Background.BGWvType> implement
 
     public Background copy(Identifier<Background> id) {
         Background bg = new Background(id, new VImg(img.getImg()));
+        // 行配列と overlay は共有する浅いコピー。呼び出し側で要素を変更する場合は別途複製が必要
         System.arraycopy(cs, 0, bg.cs, 0, 4);
         bg.top = top;
         bg.ic = ic;
@@ -422,7 +429,7 @@ public class Background extends AnimI<Background, Background.BGWvType> implement
         PackData.UserPack p = UserProfile.getUserPack(id.pack);
         if (p == null)
             return;
-        if (UserProfile.isOlderPack(p, "0.7.17.1")) { // yandere simulator mode activate
+        if (UserProfile.isOlderPack(p, "0.7.17.1")) { // 旧パックの連番効果 ID を現在の JSON 効果 ID へ変換
             if (BackgroundEffect.oldToNew.containsKey(effect))
                 effect = BackgroundEffect.oldToNew.get(effect);
         }

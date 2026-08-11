@@ -12,6 +12,10 @@ import common.util.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * パック内の戦闘用楽曲を、識別子・ループ位置・音声データと対応付ける定義。
+ * ステージ側は音声データを直接保持せず、この識別子を参照する。
+ */
 @JsonClass
 @IndexCont(PackData.class)
 @JsonClass.JCGeneric(Identifier.class)
